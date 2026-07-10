@@ -9,7 +9,7 @@ from tkinter import messagebox
 
 def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
                           _sync_nuvem, _buscar_logo_png,
-                          EVENTOS_FILE, EVENTOS_PADRAO):
+                          EVENTOS_FILE, EVENTOS_PADRAO, CONFIG_FILE):
     """Cria e retorna o frame da página "Editar Eventos".
 
     Parâmetros
@@ -211,6 +211,46 @@ def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
         carregar_eventos()
         page.after(2500, lambda: lbl_form_status.configure(text=""))
 
+    ctk.CTkLabel(form_card, text="Avisos do Modo Painel",
+                  font=("Segoe UI", 15, "bold"), text_color=TEXTO_ESCURO).pack(pady=(12, 2))
+    ctk.CTkLabel(form_card, text="Cada linha vira um aviso rotativo no painel de descanso.",
+                  font=("Segoe UI", 9), text_color=TEXTO_CINZA,
+                  justify="left").pack(anchor="w", padx=20, pady=(0, 8))
+
+    txt_avisos = ctk.CTkTextbox(form_card, font=("Segoe UI", 12), width=280, height=120)
+    txt_avisos.pack(fill="x", padx=20, pady=(0, 8))
+
+    lbl_aviso_status = ctk.CTkLabel(form_card, text="", font=("Segoe UI", 10),
+                                    text_color=TEXTO_ESCURO)
+    lbl_aviso_status.pack(pady=(0, 6))
+
+    def carregar_aviso_painel():
+        cfg_sys = ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera", "painel_avisos": []})
+        avisos = cfg_sys.get("painel_avisos", [])
+        txt_avisos.delete("0.0", "end")
+        if avisos:
+            txt_avisos.insert("0.0", "\n".join(avisos))
+        else:
+            txt_avisos.insert("0.0", "Digite um aviso por linha para exibir no modo painel.")
+
+    def salvar_aviso_painel():
+        linhas = [linha.strip() for linha in txt_avisos.get("0.0", "end").splitlines() if linha.strip()]
+        cfg_sys = ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera", "painel_avisos": []})
+        cfg_sys["painel_avisos"] = linhas
+        salvar_json(CONFIG_FILE, cfg_sys)
+        try:
+            _sync_nuvem("/admin/config", "PUT", cfg_sys)
+        except Exception:
+            pass
+        lbl_aviso_status.configure(text="✔ Avisos salvos!", text_color=VERDE_VIBRANTE)
+        page.after(2500, lambda: lbl_aviso_status.configure(text=""))
+
+    ctk.CTkButton(form_card, text="💬 Salvar Avisos do Painel",
+                   fg_color="#2563EB", hover_color="#1D4ED8",
+                   font=("Segoe UI", 12, "bold"), height=40,
+                   command=salvar_aviso_painel
+                   ).pack(fill="x", padx=20, pady=(0, 16))
+
     ctk.CTkButton(form_card, text="➕  Adicionar Evento",
                    fg_color=VERDE_VIBRANTE, hover_color=VERDE_ESCURO,
                    font=("Segoe UI", 12, "bold"), height=40,
@@ -220,5 +260,6 @@ def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
     ent_desc.bind("<Return>", lambda e: adicionar_evento())
     ent_data.bind("<Return>", lambda e: ent_desc.focus())
 
+    carregar_aviso_painel()
     carregar_eventos()
     return page

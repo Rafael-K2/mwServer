@@ -1,0 +1,31 @@
+01/07/2026 15:07:03 - INFO - Pool PostgreSQL inicializado
+01/07/2026 15:07:04 - INFO - Tabelas Neon verificadas/criadas
+01/07/2026 15:07:05 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+01/07/2026 15:07:05 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/07/2026 15:07:09 - INFO - Lista de alunos sincronizada: 504 alunos
+01/07/2026 15:07:10 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/07/2026 15:11:22 - INFO - Pool PostgreSQL inicializado
+01/07/2026 15:11:23 - INFO - Tabelas Neon verificadas/criadas
+01/07/2026 15:11:24 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/07/2026 15:11:29 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/07/2026 15:11:39 - WARNING - Sync nuvem falhou (/admin/cardapio): The read operation timed out
+01/07/2026 15:11:51 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/07/2026 15:11:54 - WARNING - Sync nuvem falhou (/admin/eventos): The read operation timed out
+01/07/2026 15:12:09 - WARNING - Sync nuvem falhou (/admin/config): The read operation timed out
+01/07/2026 15:12:24 - WARNING - Sync nuvem falhou (/admin/lista-alunos): The read operation timed out
+01/07/2026 15:12:24 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+01/07/2026 15:15:16 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260525_065752_avaliacoes_escola.csv inseridos=360 ignorados=0 erros=0
+01/07/2026 15:18:43 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/07/2026 15:34:01 - INFO - Pool PostgreSQL inicializado
+01/07/2026 15:34:02 - INFO - Tabelas Neon verificadas/criadas
+01/07/2026 15:34:03 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/07/2026 15:34:05 - INFO - Lista de alunos sincronizada: 504 alunos
+01/07/2026 15:34:05 - INFO - Configurações sincronizadas com a API na nuvem
+01/07/2026 15:34:06 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/07/2026 16:43:02 - INFO - Pool PostgreSQL inicializado
+01/07/2026 16:43:03 - INFO - Tabelas Neon verificadas/criadas
+01/07/2026 16:43:04 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/07/2026 16:43:07 - INFO - Lista de alunos sincronizada: 504 alunos
+01/07/2026 16:43:07 - INFO - Configurações sincronizadas com a API na nuvem
+01/07/2026 16:43:12 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

@@ -1,4 +1,7 @@
 {
-  "avaliacoes_ativas": false,
-  "modo_leitura": "usb"
+  "avaliacoes_ativas": true,
+  "modo_leitura": "usb",
+  "painel_avisos": [
+    "Digite um aviso por linha para exibir no modo painel."
+  ]
 }

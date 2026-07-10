@@ -1,0 +1,7 @@
+04/07/2026 00:11:12 - INFO - Pool PostgreSQL inicializado
+04/07/2026 00:11:13 - INFO - Tabelas Neon verificadas/criadas
+04/07/2026 00:11:14 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+04/07/2026 00:11:14 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+04/07/2026 00:11:17 - INFO - Lista de alunos sincronizada: 504 alunos
+04/07/2026 00:11:30 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

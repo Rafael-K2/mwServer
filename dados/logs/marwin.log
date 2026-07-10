@@ -1,24 +1,13 @@
-27/06/2026 09:46:33 - INFO - Pool PostgreSQL inicializado
-27/06/2026 09:46:34 - INFO - Tabelas Neon verificadas/criadas
-27/06/2026 09:46:35 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-27/06/2026 09:46:38 - INFO - Lista de alunos sincronizada: 504 alunos
-27/06/2026 09:46:38 - INFO - Configurações sincronizadas com a API na nuvem
-27/06/2026 09:47:39 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
-27/06/2026 09:52:57 - INFO - Pool PostgreSQL inicializado
-27/06/2026 09:52:58 - INFO - Tabelas Neon verificadas/criadas
-27/06/2026 09:52:59 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-27/06/2026 09:53:01 - INFO - Lista de alunos sincronizada: 504 alunos
-27/06/2026 09:53:01 - INFO - Configurações sincronizadas com a API na nuvem
-27/06/2026 09:53:09 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
-27/06/2026 09:56:00 - INFO - Pool PostgreSQL inicializado
-27/06/2026 09:56:01 - INFO - Tabelas Neon verificadas/criadas
-27/06/2026 09:56:02 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-27/06/2026 09:56:04 - INFO - Lista de alunos sincronizada: 504 alunos
-27/06/2026 09:56:04 - INFO - Configurações sincronizadas com a API na nuvem
-27/06/2026 09:56:09 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
-27/06/2026 09:57:56 - INFO - Pool PostgreSQL inicializado
-27/06/2026 09:57:57 - INFO - Tabelas Neon verificadas/criadas
-27/06/2026 09:57:58 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-27/06/2026 09:58:00 - INFO - Lista de alunos sincronizada: 504 alunos
-27/06/2026 09:58:00 - INFO - Configurações sincronizadas com a API na nuvem
-27/06/2026 09:58:20 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+10/07/2026 00:07:30 - INFO - Pool PostgreSQL inicializado
+10/07/2026 00:07:31 - INFO - Tabelas Neon verificadas/criadas
+10/07/2026 00:07:32 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+10/07/2026 00:07:34 - INFO - Lista de alunos sincronizada: 504 alunos
+10/07/2026 00:07:34 - INFO - Configurações sincronizadas com a API na nuvem
+10/07/2026 00:07:40 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+10/07/2026 00:12:58 - INFO - Pool PostgreSQL inicializado
+10/07/2026 00:12:59 - INFO - Tabelas Neon verificadas/criadas
+10/07/2026 00:13:00 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+10/07/2026 00:13:02 - INFO - Lista de alunos sincronizada: 504 alunos
+10/07/2026 00:13:02 - INFO - Configurações sincronizadas com a API na nuvem
+10/07/2026 00:13:06 - WARNING - Tentativa de acesso admin com senha incorreta
+10/07/2026 00:13:11 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

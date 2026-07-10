@@ -266,7 +266,47 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
                    height=38, command=adicionar_aluno).pack(fill="x", padx=18, pady=(4, 4))
     ctk.CTkButton(esq, text="🔁  Reemitir QR Selecionado", fg_color="#1565C0",
                    hover_color="#0D47A1", font=("Segoe UI", 11, "bold"),
-                   height=38, command=reemitir_selecionado).pack(fill="x", padx=18, pady=(0, 16))
+                   height=38, command=reemitir_selecionado).pack(fill="x", padx=18, pady=(0, 8))
+
+    def _salvar_edicao():
+        sel = _estado.get("selecionado")
+        if not sel:
+            return
+        novo = _campos_para_dict()
+        if not novo["matricula"] or not novo["nome"]:
+            lbl_form_status.configure(text="Matricula e Nome sao obrigatorios.", text_color="#C62828")
+            return
+        lista = _ler_lista()
+        for i, a in enumerate(lista):
+            if a["matricula"] == sel["matricula"]:
+                lista[i] = novo
+                break
+        _salvar_lista(lista)
+        _estado["selecionado"] = novo
+        carregar_lista(ent_busca.get())
+        lbl_form_status.configure(text="Dados salvos! O PNG nao foi alterado.", text_color=VERDE_VIBRANTE)
+        btn_salvar_edicao.pack_forget()
+        btn_cancelar_edicao.pack_forget()
+
+    def _cancelar_edicao():
+        _estado["selecionado"] = None
+        for key in ("matricula", "nome", "serie", "curso"):
+            campos[key].delete(0, "end")
+        preview_lbl.configure(image=None, text="QR Code preview\nsera exibido aqui")
+        _img_ref.clear()
+        lbl_form_status.configure(text="")
+        btn_salvar_edicao.pack_forget()
+        btn_cancelar_edicao.pack_forget()
+
+    btn_salvar_edicao = ctk.CTkButton(esq, text="Salvar Alteracoes",
+                                       fg_color="#2E7D32", hover_color="#1B5E20",
+                                       font=("Segoe UI", 11, "bold"), height=38,
+                                       command=_salvar_edicao)
+    btn_cancelar_edicao = ctk.CTkButton(esq, text="Cancelar Edicao",
+                                         fg_color="#6B7280", hover_color="#4B5563",
+                                         font=("Segoe UI", 10), height=32,
+                                         command=_cancelar_edicao)
+
 
     # ══════════════════════════════════════════════════════════════════════
     # COLUNA CENTRAL — Lista de alunos cadastrados
@@ -393,6 +433,17 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
         _estado["selecionado"] = al
         for mat, frame in _estado["linha_widgets"].items():
             frame.configure(fg_color=(BRANCO if mat != al["matricula"] else "#E8F5E9"))
+        for key in ("matricula", "nome", "serie", "curso"):
+            campos[key].delete(0, "end")
+            campos[key].insert(0, al.get(key, ""))
+        _atualizar_dica()
+        _preview_qr(al)
+        lbl_form_status.configure(
+            text="Editando: " + al.get("nome", "") + "\nAltere e clique em Salvar.",
+            text_color="#1565C0")
+        btn_salvar_edicao.pack(fill="x", padx=18, pady=(0, 4))
+        btn_cancelar_edicao.pack(fill="x", padx=18, pady=(0, 8))
+
 
     def carregar_lista(filtro=""):
         for w in corpo_lista.winfo_children():
@@ -420,8 +471,8 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
                           ).grid(row=0, column=0, pady=24)
             return
 
-        _estado_pag_qr = {"pagina": 0, "exibidos": exibidos}
         LIMITE = 10
+        _estado_pag_qr = {"pagina": 0, "exibidos": exibidos}
 
         def _renderizar_pagina_qr():
             for w in corpo_lista.winfo_children():
@@ -464,10 +515,11 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
                 for w in widgets_linha:
                     _bind_click(w)
 
-            # Rodapé de paginação
+            # Rodape de paginacao
             rod = ctk.CTkFrame(corpo_lista, fg_color="transparent")
             rod.grid(row=LIMITE + 1, column=0, sticky="ew", pady=(6, 2))
-            ctk.CTkLabel(rod, text=f"Exibindo {inicio+1}–{min(inicio+LIMITE, len(dados))} de {len(dados)}",
+            ctk.CTkLabel(rod,
+                          text=f"Exibindo {inicio+1}–{min(inicio+LIMITE, len(dados))} de {len(dados)}",
                           font=("Segoe UI", 10), text_color=TEXTO_CINZA).pack(side="left", padx=4)
             if pag > 0:
                 ctk.CTkButton(rod, text="← Anterior", width=90, height=26,

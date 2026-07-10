@@ -678,13 +678,45 @@ def _inserir_avaliacao_db(registro):
 
 
 def _ler_avaliacoes_db():
-    """Retorna apenas as avaliações da semana atual (seg–dom)."""
+    """Retorna TODOS os registros de avaliações do banco (sem filtro de data).
+    O filtro de semana fica a cargo de quem chama (ex: Relatório Semanal).
+    """
+    rows = _executar_pg(
+        """
+        SELECT data, aluno, serie, curso, estagio, item, nota
+        FROM avaliacoes
+        ORDER BY data DESC
+        """,
+        (),
+        fetch=True,
+    )
+    if not rows:
+        return []
+    return [
+        {
+            "Data": row["data"],
+            "Aluno": row["aluno"],
+            "Serie": row["serie"],
+            "Curso": row["curso"],
+            "Estagio": row["estagio"],
+            "Item": row["item"],
+            "Nota": row["nota"],
+        }
+        for row in rows
+    ]
+
+
+def _ler_avaliacoes_semana_db():
+    """Retorna apenas as avaliações da semana atual (seg–dom).
+    Usada pelo Relatório Semanal e pela Visão Geral.
+    """
     inicio, fim = _semana_atual_datas()
     rows = _executar_pg(
         """
         SELECT data, aluno, serie, curso, estagio, item, nota
         FROM avaliacoes
-        WHERE data >= %s AND data <= %s
+        WHERE TO_DATE(data, 'DD/MM/YYYY') >= TO_DATE(%s, 'DD/MM/YYYY')
+          AND TO_DATE(data, 'DD/MM/YYYY') <= TO_DATE(%s, 'DD/MM/YYYY')
         ORDER BY data DESC
         """,
         (inicio, fim),
@@ -707,16 +739,16 @@ def _ler_avaliacoes_db():
 
 
 def _ler_refeitorio_todos_db():
-    """Retorna apenas os registros do refeitório da semana atual (seg–dom)."""
-    inicio, fim = _semana_atual_datas()
+    """Retorna TODOS os registros do refeitório do banco (sem filtro de data).
+    O painel de Refeitório usa esta função para exibir o histórico completo.
+    """
     rows = _executar_pg(
         """
         SELECT data, horaentrada, matricula, nome, serie, curso, refeicao
         FROM refeitorio
-        WHERE data >= %s AND data <= %s
         ORDER BY data DESC, horaentrada DESC
         """,
-        (inicio, fim),
+        (),
         fetch=True,
     )
     if not rows:
@@ -728,16 +760,16 @@ def _ler_refeitorio_todos_db():
 
 
 def _ler_frequencia_todos_db():
-    """Retorna apenas os registros de frequência da semana atual (seg–dom)."""
-    inicio, fim = _semana_atual_datas()
+    """Retorna TODOS os registros de frequência do banco (sem filtro de data).
+    O painel de Frequência usa esta função para exibir o histórico completo.
+    """
     rows = _executar_pg(
         """
         SELECT data, horaentrada, matricula, nome, serie, curso, aula
         FROM frequencia
-        WHERE data >= %s AND data <= %s
         ORDER BY data DESC, horaentrada DESC
         """,
-        (inicio, fim),
+        (),
         fetch=True,
     )
     if not rows:
@@ -1092,7 +1124,7 @@ def get_cardapio(): return jsonify(ler_json(CARDAPIO_FILE, CARDAPIO_PADRAO))
 def get_eventos():  return jsonify(ler_json(EVENTOS_FILE, EVENTOS_PADRAO))
 
 @app.route("/config",    methods=["GET"])
-def get_config():   return jsonify(ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera"}))
+def get_config():   return jsonify(ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera", "painel_avisos": []}))
 
 @app.route("/avaliacoes", methods=["GET"])
 def get_avaliacoes_publicas():
@@ -2131,7 +2163,7 @@ def abrir_painel_admin_ctk(event=None):
                         jd, logger,
                         _agora_br, _hoje,
                         _ler_refeitorio_hoje_db, _ler_frequencia_hoje_db,
-                        _ler_avaliacoes_db, ler_json,
+                        _ler_avaliacoes_semana_db, ler_json,
                         EVENTOS_FILE, EVENTOS_PADRAO, DADOS_DIR,
                         _detectar_tabela_csv, _importar_csv_para_banco_forcado,
                     )
@@ -2159,7 +2191,7 @@ def abrir_painel_admin_ctk(event=None):
                             "AZUL_CLARO": AZUL_CLARO, "VERDE_CLARO": VERDE_CLARO,
                             "ROXO_CLARO": ROXO_CLARO,
                         },
-                        _agora_br, _ler_avaliacoes_db,
+                        _agora_br, _ler_avaliacoes_semana_db,
                     )
                 elif nome == "Editar Cardápio":
                     paginas[nome] = _criar_pagina_cardapio_extraida(
@@ -2181,7 +2213,7 @@ def abrir_painel_admin_ctk(event=None):
                             "VERDE_VIBRANTE": VERDE_VIBRANTE, "VERDE_ESCURO": VERDE_ESCURO,
                         },
                         ler_json, salvar_json, _sync_nuvem, _buscar_logo_png,
-                        EVENTOS_FILE, EVENTOS_PADRAO,
+                        EVENTOS_FILE, EVENTOS_PADRAO, CONFIG_FILE,
                     )
                 elif nome == "Refeitório":
                     paginas[nome] = _criar_pagina_refeitorio_extraida(
