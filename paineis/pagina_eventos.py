@@ -5,6 +5,7 @@ Extraído de abrir_painel_admin_ctk (Servidor.py) sem alterar a lógica.
 """
 import customtkinter as ctk
 from tkinter import messagebox
+import datetime
 
 
 def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
@@ -196,13 +197,23 @@ def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
                                        text_color="#C62828")
             return
 
+        try:
+            datetime.datetime.strptime(data, "%d/%m")
+        except ValueError:
+            lbl_form_status.configure(text="⚠ Data inválida. Use um dia e mês válidos (ex: 31/12).",
+                                       text_color="#C62828")
+            return
+
         evs = ler_json(EVENTOS_FILE, EVENTOS_PADRAO)
         evs.append({"data": data, "evento": desc})
         salvar_json(EVENTOS_FILE, evs)
         try:
             _sync_nuvem("/admin/eventos", "PUT", evs)
-        except Exception:
-            pass
+        except Exception as exc:
+            lbl_form_status.configure(text=f"⚠ Evento salvo localmente, mas a sincronização falhou: {exc}", text_color="#C62828")
+            page.after(2500, lambda: lbl_form_status.configure(text=""))
+            carregar_eventos()
+            return
 
         lbl_form_status.configure(text="✔ Evento adicionado!", text_color=VERDE_VIBRANTE)
         ent_data.delete(0, "end")
