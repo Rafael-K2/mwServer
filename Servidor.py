@@ -47,6 +47,9 @@ from email.mime.text import MIMEText
 from email import encoders
 from logging.handlers import TimedRotatingFileHandler
 
+import seguranca
+from seguranca import obter_senha_ou_gerar
+
 # Páginas do Painel Admin extraídas para módulos próprios (refatoração
 # incremental — comportamento idêntico ao original, só organização do código).
 from paineis.pagina_cardapio import criar_pagina_cardapio as _criar_pagina_cardapio_extraida
@@ -54,6 +57,8 @@ from paineis.pagina_eventos import criar_pagina_eventos as _criar_pagina_eventos
 from paineis.helpers import card_resumo as _card_resumo_extraido, card_tabela as _card_tabela_extraido
 from paineis.pagina_avaliacoes import criar_pagina_avaliacoes as _criar_pagina_avaliacoes_extraida
 from paineis.pagina_relatorio_semanal import criar_pagina_relatorio_semanal as _criar_pagina_relatorio_semanal_extraida
+from paineis.pagina_relatorio_ensino import criar_pagina_relatorio_ensino as _criar_pagina_relatorio_ensino_extraida
+from paineis.pagina_diagnostico import criar_pagina_diagnostico as _criar_pagina_diagnostico_extraida
 from paineis.pagina_visao_geral import criar_pagina_visao_geral as _criar_pagina_visao_geral_extraida
 from paineis.pagina_refeitorio import criar_pagina_refeitorio as _criar_pagina_refeitorio_extraida
 from paineis.pagina_frequencia import criar_pagina_frequencia as _criar_pagina_frequencia_extraida
@@ -203,15 +208,16 @@ MESES_PT = (
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 )
 DEFAULT_ADMIN_PLAIN = "Marwin2026"
-# Prefer env var MARWIN_ADMIN_PASS (pode conter hash bcrypt). Fallback para DEFAULT_ADMIN_PLAIN.
-ADMIN_PASSWORD = os.getenv("MARWIN_ADMIN_PASS", DEFAULT_ADMIN_PLAIN)
+ADMIN_PASSWORD = os.getenv("MARWIN_ADMIN_PASS") or obter_senha_ou_gerar(
+    "MARWIN_ADMIN_PASS", "admin", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_ADMIN_PLAIN
+)
 # Senha em texto claro para envio no header X-Senha ao sincronizar com a nuvem.
 # Se MARWIN_ADMIN_PASS for um hash bcrypt, use MARWIN_ADMIN_PLAIN_PASS com a senha real.
-ADMIN_PLAIN_PASS = os.getenv("MARWIN_ADMIN_PLAIN_PASS", DEFAULT_ADMIN_PLAIN)
-if ADMIN_PASSWORD == DEFAULT_ADMIN_PLAIN:
+ADMIN_PLAIN_PASS = os.getenv("MARWIN_ADMIN_PLAIN_PASS") or ADMIN_PASSWORD
+if not os.getenv("MARWIN_ADMIN_PASS"):
     print(
-        "\n[AVISO DE SEGURANÇA] A variável de ambiente MARWIN_ADMIN_PASS não está definida.\n"
-        "O servidor está usando a senha padrão. Defina MARWIN_ADMIN_PASS para maior segurança.\n"
+        "\n[AVISO DE SEGURANÇA] A variável de ambiente MARWIN_ADMIN_PASS não estava definida.\n"
+        "Uma senha local segura foi gerada e salva em dados/senha_admin.txt para uso imediato.\n"
     )
 
 # Try to import bcrypt if available (optional). If ADMIN_PASSWORD is a bcrypt hash, we'll use it.
@@ -222,8 +228,7 @@ except Exception:
     BCRYPT_AVAILABLE = False
 
 def _senha_bate(pw: str, senha_config: str) -> bool:
-    """Compara `pw` com `senha_config`, aceitando tanto senha em texto puro
-    quanto hash bcrypt (mesma regra usada para a senha de admin)."""
+    """Compara `pw` com `senha_config`, aceitando senha antiga, texto puro ou hash pbkdf2."""
     if not pw or not senha_config:
         return False
     if BCRYPT_AVAILABLE and isinstance(senha_config, str) and senha_config.startswith("$2"):
@@ -231,6 +236,13 @@ def _senha_bate(pw: str, senha_config: str) -> bool:
             return bcrypt.checkpw(pw.encode("utf-8"), senha_config.encode("utf-8"))
         except Exception:
             return False
+    if isinstance(senha_config, str) and senha_config.startswith("pbkdf2_sha256$$"):
+        try:
+            return seguranca._verificar_hash_senha(pw, senha_config)
+        except Exception:
+            return False
+    if isinstance(senha_config, str) and senha_config.startswith("legacy:"):
+        return secrets.compare_digest(pw, senha_config.split(":", 1)[1])
     return secrets.compare_digest(pw, senha_config)
 
 # ── Hierarquia de senhas do Painel Administrativo (desktop) ────────────────
@@ -241,9 +253,9 @@ DEFAULT_COOR_PLAIN       = "Coordenacao2026"
 DEFAULT_SERC_PLAIN       = "Secretaria2026"
 DEFAULT_REFEITORIO_PLAIN = "Refeitorio2026"
 
-COOR_PASSWORD       = os.getenv("MARWIN_COOR_PASS", DEFAULT_COOR_PLAIN)
-SERC_PASSWORD       = os.getenv("MARWIN_SERC_PASS", DEFAULT_SERC_PLAIN)
-REFEITORIO_PASSWORD = os.getenv("MARWIN_REFEITORIO_PASS", DEFAULT_REFEITORIO_PLAIN)
+COOR_PASSWORD       = os.getenv("MARWIN_COOR_PASS") or obter_senha_ou_gerar("MARWIN_COOR_PASS", "coor", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_COOR_PLAIN)
+SERC_PASSWORD       = os.getenv("MARWIN_SERC_PASS") or obter_senha_ou_gerar("MARWIN_SERC_PASS", "serc", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_SERC_PLAIN)
+REFEITORIO_PASSWORD = os.getenv("MARWIN_REFEITORIO_PASS") or obter_senha_ou_gerar("MARWIN_REFEITORIO_PASS", "refeitorio", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_REFEITORIO_PLAIN)
 
 for _nome_var, _valor_atual, _valor_padrao in (
     ("MARWIN_COOR_PASS", COOR_PASSWORD, DEFAULT_COOR_PLAIN),
@@ -271,12 +283,12 @@ PERFIS_NOME_EXIBICAO = {
 # Quais abas do Painel Administrativo cada perfil pode ver.
 PERFIS_ABAS = {
     "ADM": {
-        "Visão Geral", "Avaliações", "Relatório Semanal", "Editar Cardápio",
+        "Visão Geral", "Avaliações", "Relatório Semanal", "Relatório do Ensino", "Editar Cardápio",
         "Editar Eventos", "Refeitório", "Frequência", "Histórico",
-        "QR Codes", "Logs",
+        "QR Codes", "Logs", "Diagnóstico",
     },
     "COOR": {
-        "Visão Geral", "Avaliações", "Relatório Semanal",
+        "Visão Geral", "Avaliações", "Relatório Semanal", "Relatório do Ensino",
         "Editar Eventos", "Frequência", "Histórico",
     },
     "SERC": {
@@ -286,6 +298,35 @@ PERFIS_ABAS = {
         "Visão Geral", "Editar Cardápio", "Refeitório",
     },
 }
+
+_TENTATIVAS_LOGIN = {}
+_LOCKOUT_TENTATIVAS = {}
+
+
+def _processar_tentativa_login(senha: str, chave: str = "default"):
+    """Valida a senha do painel e aplica bloqueio temporário após 5 falhas."""
+    agora = time.time()
+    if chave in _LOCKOUT_TENTATIVAS:
+        if agora < _LOCKOUT_TENTATIVAS[chave] + 300:
+            return False, "Acesso bloqueado temporariamente por 5 minutos."
+        _LOCKOUT_TENTATIVAS.pop(chave, None)
+
+    perfil = _identificar_perfil(senha)
+    if perfil:
+        _TENTATIVAS_LOGIN.pop(chave, None)
+        _LOCKOUT_TENTATIVAS.pop(chave, None)
+        return True, perfil
+
+    tentativas = _TENTATIVAS_LOGIN.get(chave, 0) + 1
+    _TENTATIVAS_LOGIN[chave] = tentativas
+    if tentativas >= 5:
+        _LOCKOUT_TENTATIVAS[chave] = agora
+        _TENTATIVAS_LOGIN.pop(chave, None)
+        return False, "Acesso bloqueado temporariamente por 5 minutos."
+
+    restantes = 5 - tentativas
+    return False, f"Senha incorreta. Tentativas restantes: {restantes}."
+
 
 def _identificar_perfil(pw: str):
     """Devolve o nome do perfil (ADM/COOR/SERC/REFEITORIO) cuja senha bate
@@ -546,9 +587,51 @@ def _criar_tabelas_neon():
             );
             """
         )
+        _executar_pg(
+            """
+            CREATE TABLE IF NOT EXISTS backups (
+                id SERIAL PRIMARY KEY,
+                tipo TEXT NOT NULL,
+                origem TEXT NOT NULL,
+                criado_em TEXT NOT NULL,
+                resumo JSONB NOT NULL
+            );
+            """
+        )
         logger.info("Tabelas Neon verificadas/criadas")
     except Exception as e:
         logger.warning(f"Nao foi possivel criar tabelas Neon: {e}")
+
+
+def _registrar_backup_db(tipo="automatico", origem="sistema"):
+    """Registra um snapshot de backup no banco de dados."""
+    agora = _agora_br()
+    resumo = {
+        "ts": agora.isoformat(),
+        "semana": _semana_atual_datas(),
+        "avaliacoes": len(_ler_avaliacoes_db()),
+        "refeitorio": len(_ler_refeitorio_todos_db()),
+        "frequencia": len(_ler_frequencia_todos_db()),
+    }
+    _executar_pg(
+        "INSERT INTO backups (tipo, origem, criado_em, resumo) VALUES (%s, %s, %s, %s)",
+        (tipo, origem, agora.strftime("%d/%m/%Y %H:%M:%S"), json.dumps(resumo)),
+    )
+    return {
+        "tipo": tipo,
+        "origem": origem,
+        "criado_em": agora.strftime("%d/%m/%Y %H:%M:%S"),
+        "resumo": resumo,
+    }
+
+
+def _ler_backups_db(limit=10):
+    rows = _executar_pg(
+        "SELECT id, tipo, origem, criado_em, resumo FROM backups ORDER BY id DESC LIMIT %s",
+        (limit,),
+        fetch=True,
+    )
+    return rows
 
 
 def _semana_atual_datas():
@@ -677,6 +760,27 @@ def _inserir_avaliacao_db(registro):
     )
 
 
+def _parse_data_avaliacao(data_str):
+    """Converte a data armazenada nas avaliações para um objeto date.
+
+    O campo `data` pode vir como `DD/MM/YYYY` ou `DD/MM/YYYY HH:MM:SS`.
+    Isso evita que a filtragem semanal fique dependente do formato exato do
+    texto salvo no banco.
+    """
+    if not data_str:
+        return None
+    texto = str(data_str).strip()
+    for fmt in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y"):
+        try:
+            return datetime.datetime.strptime(texto, fmt).date()
+        except ValueError:
+            continue
+    try:
+        return datetime.datetime.fromisoformat(texto.replace("Z", "+00:00")).date()
+    except ValueError:
+        return None
+
+
 def _ler_avaliacoes_db():
     """Retorna TODOS os registros de avaliações do banco (sem filtro de data).
     O filtro de semana fica a cargo de quem chama (ex: Relatório Semanal).
@@ -708,34 +812,40 @@ def _ler_avaliacoes_db():
 
 def _ler_avaliacoes_semana_db():
     """Retorna apenas as avaliações da semana atual (seg–dom).
-    Usada pelo Relatório Semanal e pela Visão Geral.
+    Usada pelo Relatório Semanal, pela aba Avaliações e pela Visão Geral.
     """
     inicio, fim = _semana_atual_datas()
+    inicio_dt = datetime.datetime.strptime(inicio, "%d/%m/%Y").date()
+    fim_dt = datetime.datetime.strptime(fim, "%d/%m/%Y").date()
+
     rows = _executar_pg(
         """
         SELECT data, aluno, serie, curso, estagio, item, nota
         FROM avaliacoes
-        WHERE TO_DATE(data, 'DD/MM/YYYY') >= TO_DATE(%s, 'DD/MM/YYYY')
-          AND TO_DATE(data, 'DD/MM/YYYY') <= TO_DATE(%s, 'DD/MM/YYYY')
         ORDER BY data DESC
         """,
-        (inicio, fim),
+        (),
         fetch=True,
     )
     if not rows:
         return []
-    return [
-        {
-            "Data": row["data"],
-            "Aluno": row["aluno"],
-            "Serie": row["serie"],
-            "Curso": row["curso"],
-            "Estagio": row["estagio"],
-            "Item": row["item"],
-            "Nota": row["nota"],
-        }
-        for row in rows
-    ]
+
+    filtradas = []
+    for row in rows:
+        data_obj = _parse_data_avaliacao(row["data"])
+        if data_obj and inicio_dt <= data_obj <= fim_dt:
+            filtradas.append(
+                {
+                    "Data": row["data"],
+                    "Aluno": row["aluno"],
+                    "Serie": row["serie"],
+                    "Curso": row["curso"],
+                    "Estagio": row["estagio"],
+                    "Item": row["item"],
+                    "Nota": row["nota"],
+                }
+            )
+    return filtradas
 
 
 def _ler_refeitorio_todos_db():
@@ -783,7 +893,7 @@ def _ler_frequencia_todos_db():
 def _avaliacoes_para_linhas():
     return [
         [r["Data"], r["Aluno"], r["Serie"], r["Curso"], r["Estagio"], r["Item"], r["Nota"]]
-        for r in _ler_avaliacoes_db()
+        for r in _ler_avaliacoes_semana_db()
     ]
 
 
@@ -1716,7 +1826,7 @@ def _agendar_backup_email():
     thread.start()
 
 def _iniciar_fluxo_backup_mes(btn_backup=None):
-    """Fluxo guiado: nome do arquivo → exportar CSV → confirmação dupla → limpar banco."""
+    """Fluxo guiado: nome do arquivo → exportar CSV → registrar backup no banco → limpar banco."""
     def _habilitar_btn(estado):
         if btn_backup is not None:
             try:
@@ -1964,14 +2074,16 @@ def abrir_painel_admin_ctk(event=None):
     de dados do painel original — só muda a interface.
     """
     senha = pedir_senha_tk()
-
-    perfil = _identificar_perfil(senha)
-    if not perfil:
-        if senha is not None:
-            logger.warning("Tentativa de acesso admin com senha incorreta")
-            messagebox.showerror("Acesso negado", "Senha incorreta!")
+    if senha is None:
         return
 
+    sucesso_login, msg_login = _processar_tentativa_login(senha)
+    if not sucesso_login:
+        logger.warning("Tentativa de acesso admin com senha incorreta")
+        messagebox.showerror("Acesso negado", msg_login)
+        return
+
+    perfil = msg_login
     abas_permitidas = PERFIS_ABAS.get(perfil, set())
     logger.info(f"Painel admin (CTk) aberto com sucesso — perfil: {perfil}")
 
@@ -2067,6 +2179,7 @@ def abrir_painel_admin_ctk(event=None):
         ("🏠", "Visão Geral"),
         ("📋", "Avaliações"),
         ("📅", "Relatório Semanal"),
+        ("📚", "Relatório do Ensino"),
         ("🍽️", "Editar Cardápio"),
         ("🗓️", "Editar Eventos"),
         ("👤", "Refeitório"),
@@ -2074,6 +2187,7 @@ def abrir_painel_admin_ctk(event=None):
         ("🕘", "Histórico"),
         ("🔲", "QR Codes"),
         ("📄", "Logs"),
+        ("🛠️", "Diagnóstico"),
     ]
     # Só mostra, no menu lateral, as abas liberadas para o perfil logado.
     itens_menu = [(icone, nome) for icone, nome in TODOS_ITENS_MENU if nome in abas_permitidas]
@@ -2093,7 +2207,7 @@ def abrir_painel_admin_ctk(event=None):
     # Essas páginas são destruídas e recriadas a cada navegação para evitar o
     # erro "No more menus can be allocated".
     PAGINAS_RECRIAR = {"Refeitório", "Frequência", "Histórico", "QR Codes",
-                        "Editar Cardápio", "Editar Eventos", "Relatório Semanal"}
+                        "Editar Cardápio", "Editar Eventos", "Relatório Semanal", "Diagnóstico"}
 
     # ── Polling global — atualiza a aba ativa quando Neon receber dado novo ──
     _polling_estado = {"ts": None, "aba_atual": None, "vivo": True}
@@ -2192,6 +2306,35 @@ def abrir_painel_admin_ctk(event=None):
                             "ROXO_CLARO": ROXO_CLARO,
                         },
                         _agora_br, _ler_avaliacoes_semana_db,
+                    )
+                elif nome == "Relatório do Ensino":
+                    paginas[nome] = _criar_pagina_relatorio_ensino_extraida(
+                        _scroll_inner,
+                        {
+                            "CINZA_BG": CINZA_BG, "BRANCO": BRANCO,
+                            "TEXTO_CINZA": TEXTO_CINZA, "TEXTO_ESCURO": TEXTO_ESCURO,
+                            "VERDE_VIBRANTE": VERDE_VIBRANTE, "VERDE_ESCURO": VERDE_ESCURO,
+                            "AZUL_CLARO": AZUL_CLARO, "VERDE_CLARO": VERDE_CLARO,
+                            "ROXO_CLARO": ROXO_CLARO,
+                            "LARANJA": "#EF6C00",
+                        },
+                        _agora_br, _ler_avaliacoes_semana_db,
+                    )
+                elif nome == "Diagnóstico":
+                    paginas[nome] = _criar_pagina_diagnostico_extraida(
+                        _scroll_inner,
+                        {
+                            "CINZA_BG": CINZA_BG, "BRANCO": BRANCO,
+                            "TEXTO_CINZA": TEXTO_CINZA, "TEXTO_ESCURO": TEXTO_ESCURO,
+                            "VERDE_VIBRANTE": VERDE_VIBRANTE, "VERDE_ESCURO": VERDE_ESCURO,
+                            "AZUL_CLARO": AZUL_CLARO, "ROXO_CLARO": ROXO_CLARO,
+                        },
+                        _agora_br,
+                        lambda: {
+                            "db_status": "Online" if PG_POOL else "Offline",
+                            "api_status": "Online",
+                        },
+                        _ler_backups_db,
                     )
                 elif nome == "Editar Cardápio":
                     paginas[nome] = _criar_pagina_cardapio_extraida(
@@ -2639,6 +2782,26 @@ def iniciar_tkinter(url_publica):
 
     janela.mainloop()
 
+def validar_inicializacao():
+    """Retorna um resumo simples para confirmar se os componentes críticos iniciaram."""
+    problemas = []
+    if not os.path.isdir(DADOS_DIR):
+        problemas.append("pasta de dados ausente")
+    if not os.path.exists(CARDAPIO_FILE):
+        problemas.append("cardapio.json ausente")
+    if not os.path.exists(CONFIG_FILE):
+        problemas.append("config_sistema.json ausente")
+    if not os.path.exists(DB_CONFIG_FILE):
+        problemas.append("db_config.json ausente")
+    if not os.path.exists(LISTA_ALUNOS_FILE):
+        problemas.append("lista_alunos.json ausente")
+    return {
+        "ok": not problemas,
+        "problemas": problemas,
+        "admin_senha_gerada": not os.getenv("MARWIN_ADMIN_PASS"),
+        "dados_dir": DADOS_DIR,
+    }
+
 # ==============================================================================
 # INICIALIZACAO
 # ==============================================================================
@@ -2657,10 +2820,18 @@ if __name__ == "__main__":
     ).start()
     time.sleep(1)
 
+    validacao = validar_inicializacao()
+    if validacao["ok"]:
+        logger.info("Validação de inicialização OK")
+    else:
+        logger.warning(f"Validação de inicialização com problemas: {validacao['problemas']}")
+
     local_ip = _get_local_ip()
     url = f"http://{local_ip}:5000"
     logger.info(f"Servidor MARWIN iniciado em {url}")
     print(f"\n[CLIENTE] Acesse localmente em: {url}")
     print(f"[CLIENTE] Ou use http://localhost:5000 no proprio computador")
+    if not validacao["ok"]:
+        print(f"[AVISO] Validação inicial: {validacao['problemas']}")
 
     iniciar_tkinter(url)

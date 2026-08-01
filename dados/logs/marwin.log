@@ -1,6 +1,87 @@
-17/07/2026 19:01:14 - INFO - Pool PostgreSQL inicializado
-17/07/2026 19:01:15 - INFO - Tabelas Neon verificadas/criadas
-17/07/2026 19:01:16 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-17/07/2026 19:01:19 - INFO - Lista de alunos sincronizada: 504 alunos
-17/07/2026 19:01:19 - INFO - Configurações sincronizadas com a API na nuvem
-17/07/2026 19:01:24 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:04:15 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:04:16 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:04:17 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:04:21 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:04:21 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 12:04:24 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:06:44 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:06:45 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:06:46 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:06:48 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:06:48 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 12:07:02 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:08:35 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:08:37 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:08:38 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:08:39 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:08:39 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 12:08:45 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:35:36 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:35:38 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:35:39 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:35:44 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:35:50 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:35:50 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 12:54:24 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:54:26 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:54:27 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:54:29 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:54:29 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 12:54:43 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 12:56:55 - INFO - Pool PostgreSQL inicializado
+01/08/2026 12:56:56 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 12:56:57 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 12:56:59 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 12:56:59 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 13:02:23 - WARNING - MARWIN_ADMIN_PASS não definido; usando senha local gerada em Servidor/dados/senha_admin.txt
+01/08/2026 13:04:05 - INFO - Pool PostgreSQL inicializado
+01/08/2026 13:04:06 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 13:04:07 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 403 — {"erro":"Acesso negado"}
+
+01/08/2026 13:04:07 - INFO - Validação de inicialização OK
+01/08/2026 13:04:07 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 13:04:07 - WARNING - Sync nuvem falhou (/admin/eventos): HTTP 403 — {"erro":"Acesso negado"}
+
+01/08/2026 13:04:08 - WARNING - Sync nuvem falhou (/admin/config): HTTP 403 — {"erro":"Acesso negado"}
+
+01/08/2026 13:04:09 - WARNING - Sync nuvem falhou (/admin/lista-alunos): HTTP 403 — {"erro":"Acesso negado"}
+
+01/08/2026 13:04:09 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+01/08/2026 13:04:15 - WARNING - Tentativa de acesso admin com senha incorreta
+01/08/2026 13:04:20 - WARNING - Tentativa de acesso admin com senha incorreta
+01/08/2026 13:05:05 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 13:07:53 - INFO - Pool PostgreSQL inicializado
+01/08/2026 13:07:54 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 13:07:55 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+01/08/2026 13:07:55 - INFO - Validação de inicialização OK
+01/08/2026 13:07:55 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 13:07:57 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 13:08:09 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+01/08/2026 13:12:55 - INFO - Pool PostgreSQL inicializado
+01/08/2026 13:12:56 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 13:12:56 - WARNING - Sync nuvem falhou (/admin/cardapio): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:12:56 - WARNING - Sync nuvem falhou (/admin/eventos): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:12:56 - WARNING - Sync nuvem falhou (/admin/config): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:12:56 - WARNING - Sync nuvem falhou (/admin/lista-alunos): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:12:56 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+01/08/2026 13:12:57 - INFO - Validação de inicialização OK
+01/08/2026 13:12:57 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 13:13:49 - WARNING - Tentativa de acesso admin com senha incorreta
+01/08/2026 13:16:14 - INFO - Pool PostgreSQL inicializado
+01/08/2026 13:16:16 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 13:16:16 - WARNING - Sync nuvem falhou (/admin/cardapio): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:16:16 - WARNING - Sync nuvem falhou (/admin/eventos): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:16:16 - WARNING - Sync nuvem falhou (/admin/config): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:16:16 - WARNING - Sync nuvem falhou (/admin/lista-alunos): expected string or bytes-like object, got 'NoneType'
+01/08/2026 13:16:16 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+01/08/2026 13:16:17 - INFO - Validação de inicialização OK
+01/08/2026 13:16:17 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 13:16:56 - WARNING - Tentativa de acesso admin com senha incorreta
+01/08/2026 13:18:27 - INFO - Pool PostgreSQL inicializado
+01/08/2026 13:18:28 - INFO - Tabelas Neon verificadas/criadas
+01/08/2026 13:18:29 - INFO - Validação de inicialização OK
+01/08/2026 13:18:29 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+01/08/2026 13:18:32 - INFO - Lista de alunos sincronizada: 504 alunos
+01/08/2026 13:18:32 - INFO - Configurações sincronizadas com a API na nuvem
+01/08/2026 13:19:06 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

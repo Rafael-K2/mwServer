@@ -39,7 +39,7 @@ def criar_pagina_visao_geral(_scroll_inner, cores, jd, logger,
 
     page = ctk.CTkFrame(_scroll_inner, fg_color=CINZA_BG)
     page.grid_columnconfigure((0, 1, 2), weight=1, uniform="col")
-    page.pack_configure(padx=24, pady=20, fill="both", expand=True)
+    page.grid(row=0, column=0, sticky="nsew", padx=24, pady=20)
 
     # ── Detecta estado do banco nas leituras iniciais ────────────────
     _db_erros = []

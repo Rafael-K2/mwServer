@@ -9,6 +9,7 @@ import csv
 import unicodedata as _ud
 import threading
 import customtkinter as ctk
+import tkinter as tk
 from tkinter import messagebox
 
 from paineis.helpers import card_resumo
@@ -498,7 +499,26 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
                 _sel_aus["linha_widgets"][al.get("matricula", "")] = (linha, bg)
 
                 def _bind_click_aus(widget, a=al):
+                    # Left-click selects the student (visual feedback only).
                     widget.bind("<Button-1>", lambda e, _a=a: _selecionar_aus(_a))
+                    # Right-click opens a context menu beside the mouse.
+                    def _show_menu(event, _a=a):
+                        # mark as selected visually
+                        _sel_aus["selecionado"] = _a
+                        mat_sel = _a.get("matricula", "")
+                        for mat, (frame, bg_original) in _sel_aus["linha_widgets"].items():
+                            frame.configure(fg_color=(bg_original if mat != mat_sel else "#E8F5E9"))
+                        lbl_sel_aus.configure(text=f"Selecionado: {_a.get('nome', '-')}")
+
+                        menu = tk.Menu(win, tearoff=0)
+                        menu.add_command(label="✔  Colocar Presença", command=lambda: _colocar_presenca())
+                        menu.add_command(label="📋  Copiar matrícula", command=lambda: (win.clipboard_clear(), win.clipboard_append(_a.get('matricula',''))))
+                        try:
+                            menu.tk_popup(event.x_root, event.y_root)
+                        finally:
+                            menu.grab_release()
+
+                    widget.bind("<Button-3>", _show_menu)
 
                 for w in (linha, lbl_n, lbl_s, lbl_c):
                     _bind_click_aus(w)
