@@ -10,10 +10,12 @@ import unicodedata as _ud
 import threading
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 from paineis.helpers import card_resumo
 from paineis.helpers import iniciar_polling
+from paineis.helpers import confirmar_exclusao
 
 
 def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
@@ -395,8 +397,6 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
         presentes = set(_estado["alunos_unicos"].keys())
         ausentes = [al for al in lista_todos if al.get("matricula", "") not in presentes]
 
-        _sel_aus = {"selecionado": None, "linha_widgets": {}}
-
         win = ctk.CTkToplevel(page)
         win.title("Alunos Ausentes Hoje")
         win.geometry("760x560")
@@ -427,21 +427,47 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
 
         lista_card = ctk.CTkFrame(win, fg_color=BRANCO, corner_radius=12)
         lista_card.pack(fill="both", expand=True, padx=20, pady=(0, 8))
-        lista_card.grid_rowconfigure(1, weight=1)
+        lista_card.grid_rowconfigure(0, weight=1)
         lista_card.grid_columnconfigure(0, weight=1)
 
-        hdr = ctk.CTkFrame(lista_card, fg_color=VERDE_ESCURO, corner_radius=6)
-        hdr.grid(row=0, column=0, sticky="ew", padx=14, pady=(14, 0))
-        ctk.CTkLabel(hdr, text="Nome", font=("Segoe UI", 10, "bold"),
-                      text_color="white", width=280, anchor="w").pack(side="left", padx=6, pady=8)
-        ctk.CTkLabel(hdr, text="Série", font=("Segoe UI", 10, "bold"),
-                      text_color="white", width=100, anchor="w").pack(side="left", padx=6, pady=8)
-        ctk.CTkLabel(hdr, text="Curso", font=("Segoe UI", 10, "bold"),
-                      text_color="white", anchor="w").pack(side="left", expand=True, fill="x", padx=6, pady=8)
+        # Antes cada aluno ausente virava 4 widgets do CustomTkinter (um
+        # frame + 3 labels, cada um com bind de clique) montados um a um
+        # num loop — com centenas de ausentes (comum de manhã, antes de
+        # todo mundo bater o QR), isso sozinho travava a janela por vários
+        # segundos. Um ttk.Treeview é nativo do Tk, feito exatamente pra
+        # listas grandes, e desenha tudo de uma vez sem esse custo por
+        # widget — a mesma lista com 500+ linhas aparece na hora.
+        style = ttk.Style(win)
+        try:
+            style.theme_use("clam")
+        except Exception:
+            pass
+        style.configure("Ausentes.Treeview", background=BRANCO, fieldbackground=BRANCO,
+                         foreground="#374151", rowheight=28, font=("Segoe UI", 11), borderwidth=0)
+        style.configure("Ausentes.Treeview.Heading", background=VERDE_ESCURO, foreground="white",
+                         font=("Segoe UI", 10, "bold"), relief="flat")
+        style.map("Ausentes.Treeview.Heading", background=[("active", VERDE_ESCURO)])
+        style.map("Ausentes.Treeview", background=[("selected", "#E8F5E9")],
+                  foreground=[("selected", "#1B5E20")])
 
-        corpo_aus = ctk.CTkFrame(lista_card, fg_color="transparent")
-        corpo_aus.grid(row=1, column=0, sticky="nsew", padx=14, pady=(0, 14))
-        corpo_aus.grid_columnconfigure(0, weight=1)
+        tree_frame = ctk.CTkFrame(lista_card, fg_color="transparent")
+        tree_frame.grid(row=0, column=0, sticky="nsew", padx=14, pady=14)
+        tree_frame.grid_rowconfigure(0, weight=1)
+        tree_frame.grid_columnconfigure(0, weight=1)
+
+        tree = ttk.Treeview(tree_frame, columns=("nome", "serie", "curso"), show="headings",
+                             style="Ausentes.Treeview", selectmode="browse")
+        tree.heading("nome", text="Nome")
+        tree.heading("serie", text="Série")
+        tree.heading("curso", text="Curso")
+        tree.column("nome", width=300, anchor="w")
+        tree.column("serie", width=90, anchor="w")
+        tree.column("curso", width=260, anchor="w")
+        tree.grid(row=0, column=0, sticky="nsew")
+
+        scroll_y = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
+        scroll_y.grid(row=0, column=1, sticky="ns")
+        tree.configure(yscrollcommand=scroll_y.set)
 
         lbl_cnt_aus = ctk.CTkLabel(win, text="", font=("Segoe UI", 10), text_color=TEXTO_CINZA)
         lbl_cnt_aus.pack(anchor="w", padx=20, pady=(0, 4))
@@ -450,21 +476,31 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
                                      font=("Segoe UI", 10, "bold"), text_color=VERDE_ESCURO)
         lbl_sel_aus.pack(anchor="w", padx=20, pady=(0, 8))
 
-        def _selecionar_aus(al):
-            _sel_aus["selecionado"] = al
-            mat_sel = al.get("matricula", "")
-            for mat, (frame, bg_original) in _sel_aus["linha_widgets"].items():
-                frame.configure(fg_color=(bg_original if mat != mat_sel else "#E8F5E9"))
-            lbl_sel_aus.configure(text=f"Selecionado: {al.get('nome', '-')}")
-            btn_presenca.pack(side="left")
+        _iid_para_aluno = {}
+
+        def _aluno_selecionado():
+            sel = tree.selection()
+            if not sel:
+                return None
+            return _iid_para_aluno.get(sel[0])
+
+        def _on_select(event=None):
+            al = _aluno_selecionado()
+            if al:
+                lbl_sel_aus.configure(text=f"Selecionado: {al.get('nome', '-')}")
+                btn_presenca.pack(side="left")
+            else:
+                lbl_sel_aus.configure(text="Nenhum aluno selecionado.")
+                btn_presenca.pack_forget()
+
+        tree.bind("<<TreeviewSelect>>", _on_select)
 
         def _preencher():
-            _sel_aus["selecionado"] = None
-            _sel_aus["linha_widgets"] = {}
+            tree.delete(*tree.get_children())
+            _iid_para_aluno.clear()
             lbl_sel_aus.configure(text="Nenhum aluno selecionado.")
             btn_presenca.pack_forget()
-            for w in corpo_aus.winfo_children():
-                w.destroy()
+
             f_serie = cb_serie_aus.get()
             f_curso = cb_curso_aus.get()
             exibidos = []
@@ -476,52 +512,29 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
             lbl_cnt_aus.configure(text=f"{len(exibidos)} ausente(s) de {len(lista_todos)} cadastrado(s)")
 
             if not exibidos:
-                ctk.CTkLabel(corpo_aus, text="Nenhum ausente encontrado.",
-                              font=("Segoe UI", 12), text_color=TEXTO_CINZA
-                              ).grid(row=0, column=0, pady=24)
                 return
 
-            for i, al in enumerate(sorted(exibidos, key=lambda a: a.get("nome", "").lower())):
-                bg = BRANCO if i % 2 == 0 else "#F8F9FA"
-                linha = ctk.CTkFrame(corpo_aus, fg_color=bg, corner_radius=4, cursor="hand2")
-                linha.grid(row=i, column=0, sticky="ew", pady=1)
+            for al in sorted(exibidos, key=lambda a: a.get("nome", "").lower()):
+                iid = tree.insert("", "end", values=(al.get("nome", "-"), al.get("serie", "-"), al.get("curso", "-")))
+                _iid_para_aluno[iid] = al
 
-                lbl_n = ctk.CTkLabel(linha, text=al.get("nome", "-"), font=("Segoe UI", 11),
-                              width=280, anchor="w", text_color="#C62828")
-                lbl_n.pack(side="left", padx=6, pady=6)
-                lbl_s = ctk.CTkLabel(linha, text=al.get("serie", "-"), font=("Segoe UI", 11),
-                              width=100, anchor="w", text_color="#374151")
-                lbl_s.pack(side="left", padx=6, pady=6)
-                lbl_c = ctk.CTkLabel(linha, text=al.get("curso", "-"), font=("Segoe UI", 11),
-                              anchor="w", text_color="#374151")
-                lbl_c.pack(side="left", expand=True, fill="x", padx=6, pady=6)
+        def _show_menu(event):
+            iid = tree.identify_row(event.y)
+            if not iid:
+                return
+            tree.selection_set(iid)
+            al = _iid_para_aluno.get(iid)
+            if not al:
+                return
+            menu = tk.Menu(win, tearoff=0)
+            menu.add_command(label="✔  Colocar Presença", command=lambda: _colocar_presenca())
+            menu.add_command(label="📋  Copiar matrícula", command=lambda: (win.clipboard_clear(), win.clipboard_append(al.get('matricula', ''))))
+            try:
+                menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                menu.grab_release()
 
-                _sel_aus["linha_widgets"][al.get("matricula", "")] = (linha, bg)
-
-                def _bind_click_aus(widget, a=al):
-                    # Left-click selects the student (visual feedback only).
-                    widget.bind("<Button-1>", lambda e, _a=a: _selecionar_aus(_a))
-                    # Right-click opens a context menu beside the mouse.
-                    def _show_menu(event, _a=a):
-                        # mark as selected visually
-                        _sel_aus["selecionado"] = _a
-                        mat_sel = _a.get("matricula", "")
-                        for mat, (frame, bg_original) in _sel_aus["linha_widgets"].items():
-                            frame.configure(fg_color=(bg_original if mat != mat_sel else "#E8F5E9"))
-                        lbl_sel_aus.configure(text=f"Selecionado: {_a.get('nome', '-')}")
-
-                        menu = tk.Menu(win, tearoff=0)
-                        menu.add_command(label="✔  Colocar Presença", command=lambda: _colocar_presenca())
-                        menu.add_command(label="📋  Copiar matrícula", command=lambda: (win.clipboard_clear(), win.clipboard_append(_a.get('matricula',''))))
-                        try:
-                            menu.tk_popup(event.x_root, event.y_root)
-                        finally:
-                            menu.grab_release()
-
-                    widget.bind("<Button-3>", _show_menu)
-
-                for w in (linha, lbl_n, lbl_s, lbl_c):
-                    _bind_click_aus(w)
+        tree.bind("<Button-3>", _show_menu)
 
         def _exportar():
             try:
@@ -531,7 +544,7 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
                 exibidos = [al for al in ausentes
                              if _serie_bate(al.get("serie", ""), f_serie)
                              and _curso_bate(al.get("curso", ""), f_curso)]
-                with open(nome_arq, "w", newline="", encoding="utf-8") as f:
+                with open(nome_arq, "w", newline="", encoding="utf-8-sig") as f:
                     w = csv.writer(f)
                     w.writerow(["Nome", "Série", "Curso"])
                     for al in sorted(exibidos, key=lambda a: a.get("nome", "").lower()):
@@ -543,7 +556,7 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
         lbl_status_aus = ctk.CTkLabel(win, text="", font=("Segoe UI", 10), text_color=VERDE_VIBRANTE)
 
         def _colocar_presenca():
-            sel = _sel_aus.get("selecionado")
+            sel = _aluno_selecionado()
             if not sel:
                 lbl_status_aus.configure(text="⚠ Selecione um aluno na lista de ausentes.",
                                           text_color="#C62828")
@@ -558,24 +571,47 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
             if not messagebox.askyesno("Confirmar", f"Marcar presença de {nome} agora?"):
                 return
 
-            try:
-                if _frequencia_duplicado_db(matricula):
-                    messagebox.showinfo("Aviso", f"{nome} já está marcado como presente hoje.")
-                else:
-                    hora = _agora_br().strftime("%H:%M:%S")
-                    aula = _aula_por_hora(hora)
-                    registro = [_hoje(), hora, matricula, nome, serie, curso, aula]
-                    _inserir_frequencia_db(registro)
-                    lbl_status_aus.configure(text=f"✔ Presença registrada: {nome}",
-                                              text_color=VERDE_VIBRANTE)
-                    win.after(4000, lambda: lbl_status_aus.configure(text=""))
-            except Exception as e:
-                messagebox.showerror("Erro", f"Falha ao registrar presença:\n{e}")
-                return
+            # A checagem de duplicidade e a inserção no banco rodam numa
+            # thread separada — são chamadas ao Neon, e travar essa janela
+            # (que já foi corrigida pra abrir rápido) de novo por causa do
+            # banco seria voltar ao mesmo problema.
+            btn_presenca.configure(state="disabled")
+            lbl_status_aus.configure(text="Salvando...", text_color=TEXTO_CINZA)
 
-            ausentes[:] = [a for a in ausentes if a.get("matricula", "") != matricula]
-            _preencher()
-            atualizar_freq()
+            def _thread_body():
+                erro = None
+                ja_presente = False
+                try:
+                    if _frequencia_duplicado_db(matricula):
+                        ja_presente = True
+                    else:
+                        hora = _agora_br().strftime("%H:%M:%S")
+                        aula = _aula_por_hora(hora)
+                        registro = [_hoje(), hora, matricula, nome, serie, curso, aula]
+                        _inserir_frequencia_db(registro)
+                except Exception as e:
+                    erro = str(e)
+
+                def _finalizar():
+                    if not win.winfo_exists():
+                        return
+                    btn_presenca.configure(state="normal")
+                    if erro:
+                        messagebox.showerror("Erro", f"Falha ao registrar presença:\n{erro}")
+                        return
+                    if ja_presente:
+                        messagebox.showinfo("Aviso", f"{nome} já está marcado como presente hoje.")
+                    else:
+                        lbl_status_aus.configure(text=f"✔ Presença registrada: {nome}",
+                                                  text_color=VERDE_VIBRANTE)
+                        win.after(4000, lambda: lbl_status_aus.configure(text=""))
+                    ausentes[:] = [a for a in ausentes if a.get("matricula", "") != matricula]
+                    _preencher()
+                    atualizar_freq()
+
+                win.after(0, _finalizar)
+
+            threading.Thread(target=_thread_body, daemon=True).start()
 
         btn_row_aus = ctk.CTkFrame(win, fg_color="transparent")
         btn_row_aus.pack(anchor="w", padx=20, pady=(0, 4))
@@ -586,7 +622,7 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
         btn_presenca = ctk.CTkButton(btn_row_aus, text="✔  Colocar Presença", fg_color=VERDE_VIBRANTE,
                                       hover_color=VERDE_ESCURO, font=("Segoe UI", 11, "bold"),
                                       height=34, command=_colocar_presenca)
-        # Só aparece depois que um aluno é selecionado na lista (ver _selecionar_aus / _preencher)
+        # Só aparece depois que um aluno é selecionado na lista (ver _on_select / _preencher)
 
         lbl_status_aus.pack(anchor="w", padx=20, pady=(0, 16))
 
@@ -610,7 +646,12 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
 
     # ── Apagar registros de hoje ──────────────────────────────────────────
     def apagar_hoje_freq():
-        if not messagebox.askyesno("Confirmar", f"Apagar todos os registros de hoje ({_hoje()})?"):
+        if not confirmar_exclusao(
+            page.winfo_toplevel(),
+            "Apagar registros de frequência de hoje",
+            f"Isso remove permanentemente todos os registros de frequência de hoje ({_hoje()}).",
+            cores,
+        ):
             return
         try:
             _apagar_frequencia_data_db(_hoje())
@@ -640,5 +681,5 @@ def criar_pagina_frequencia(_scroll_inner, cores, _hoje, _agora_br,
     ent_nome.bind("<KeyRelease>", lambda e: atualizar_freq())
 
     atualizar_freq()
-    iniciar_polling(page, atualizar_freq())
+    iniciar_polling(page, atualizar_freq)
     return page

@@ -228,6 +228,15 @@ def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
                   font=("Segoe UI", 9), text_color=TEXTO_CINZA,
                   justify="left").pack(anchor="w", padx=20, pady=(0, 8))
 
+    # Antes o texto de instrução ("Digite um aviso por linha...") era
+    # inserido como conteúdo de verdade na caixa — se o admin clicasse em
+    # "Salvar" sem perceber que era só uma dica, essa frase virava um
+    # aviso de verdade, exibido rodando na TV/painel de descanso. Agora
+    # ele fica visualmente diferente (cinza) e some ao focar/voltar ao
+    # ficar vazio, como um placeholder de verdade — e mesmo que passe
+    # batido, salvar_aviso_painel() reconhece e ignora esse texto.
+    PLACEHOLDER_AVISOS = "Digite um aviso por linha para exibir no modo painel."
+
     txt_avisos = ctk.CTkTextbox(form_card, font=("Segoe UI", 12), width=280, height=120)
     txt_avisos.pack(fill="x", padx=20, pady=(0, 8))
 
@@ -240,12 +249,31 @@ def criar_pagina_eventos(_scroll_inner, cores, ler_json, salvar_json,
         avisos = cfg_sys.get("painel_avisos", [])
         txt_avisos.delete("0.0", "end")
         if avisos:
+            txt_avisos.configure(text_color=TEXTO_ESCURO)
             txt_avisos.insert("0.0", "\n".join(avisos))
         else:
-            txt_avisos.insert("0.0", "Digite um aviso por linha para exibir no modo painel.")
+            txt_avisos.configure(text_color=TEXTO_CINZA)
+            txt_avisos.insert("0.0", PLACEHOLDER_AVISOS)
+
+    def _placeholder_ao_focar(event=None):
+        if txt_avisos.get("0.0", "end").strip() == PLACEHOLDER_AVISOS:
+            txt_avisos.delete("0.0", "end")
+            txt_avisos.configure(text_color=TEXTO_ESCURO)
+
+    def _placeholder_ao_desfocar(event=None):
+        if not txt_avisos.get("0.0", "end").strip():
+            txt_avisos.insert("0.0", PLACEHOLDER_AVISOS)
+            txt_avisos.configure(text_color=TEXTO_CINZA)
+
+    txt_avisos.bind("<FocusIn>", _placeholder_ao_focar)
+    txt_avisos.bind("<FocusOut>", _placeholder_ao_desfocar)
 
     def salvar_aviso_painel():
-        linhas = [linha.strip() for linha in txt_avisos.get("0.0", "end").splitlines() if linha.strip()]
+        bruto = txt_avisos.get("0.0", "end").strip()
+        if bruto == PLACEHOLDER_AVISOS:
+            linhas = []
+        else:
+            linhas = [linha.strip() for linha in bruto.splitlines() if linha.strip()]
         cfg_sys = ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera", "painel_avisos": []})
         cfg_sys["painel_avisos"] = linhas
         salvar_json(CONFIG_FILE, cfg_sys)

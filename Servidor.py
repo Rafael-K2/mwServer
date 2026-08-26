@@ -24,14 +24,13 @@ Organização dos QR Codes: qrcodes_marwin/
       ...
 """
 
-import os, json, csv, datetime, threading, calendar, time, io, base64, re, logging, smtplib, shutil, zipfile, unicodedata, socket
+import os, sys, json, csv, datetime, threading, calendar, time, io, base64, re, logging, smtplib, shutil, zipfile, unicodedata, socket
 from collections import Counter
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
-import datetime
 
 import qrcode
 from PIL import Image
@@ -56,6 +55,7 @@ from paineis.pagina_cardapio import criar_pagina_cardapio as _criar_pagina_carda
 from paineis.pagina_eventos import criar_pagina_eventos as _criar_pagina_eventos_extraida
 from paineis.helpers import card_resumo as _card_resumo_extraido, card_tabela as _card_tabela_extraido
 from paineis.pagina_avaliacoes import criar_pagina_avaliacoes as _criar_pagina_avaliacoes_extraida
+from paineis.pagina_respostas import criar_pagina_respostas as _criar_pagina_respostas_extraida
 from paineis.pagina_relatorio_semanal import criar_pagina_relatorio_semanal as _criar_pagina_relatorio_semanal_extraida
 from paineis.pagina_relatorio_ensino import criar_pagina_relatorio_ensino as _criar_pagina_relatorio_ensino_extraida
 from paineis.pagina_diagnostico import criar_pagina_diagnostico as _criar_pagina_diagnostico_extraida
@@ -79,7 +79,21 @@ def _agora_br():
     return datetime.datetime.now(FUSO_BRASIL)
 
 app = Flask(__name__)
-CORS(app)
+# Antes CORS(app) liberava QUALQUER site do navegador de qualquer pessoa a
+# chamar essa API local. Agora só os domínios em MARWIN_CORS_ORIGINS
+# (separados por vírgula) podem. Sem a variável definida, cai num fallback
+# aberto (mantém funcionando) mas avisa no console.
+_cors_origins_env = os.getenv("MARWIN_CORS_ORIGINS", "").strip()
+if _cors_origins_env:
+    _cors_origins = [o.strip() for o in _cors_origins_env.split(",") if o.strip()]
+else:
+    _cors_origins = "*"
+    print(
+        "[AVISO DE SEGURANÇA] MARWIN_CORS_ORIGINS não definida — CORS está aberto "
+        "para qualquer origem. Defina MARWIN_CORS_ORIGINS=https://seuusuario.github.io "
+        "para restringir."
+    )
+CORS(app, origins=_cors_origins)
 
 # ==============================================================================
 # SSE — Server-Sent Events (atualização automática do app)
@@ -149,7 +163,33 @@ def eventos_sse():
         },
     )
 
-DADOS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "dados"))
+def _pasta_recursos():
+    """Pasta de arquivos só-leitura que acompanham o app (index.html,
+    logo_marwin.png etc.). Quando empacotado com PyInstaller (--onefile),
+    esses arquivos ficam extraídos numa pasta temporária a cada execução
+    (sys._MEIPASS) — é lá que precisam ser buscados nesse caso."""
+    if getattr(sys, "frozen", False):
+        return getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def _pasta_dados_persistente():
+    """Pasta onde o app grava dados que precisam sobreviver entre uma
+    execução e outra: configs, senhas, logs, backups (a pasta `dados/`).
+
+    Isso é diferente de _pasta_recursos(): quando empacotado com
+    PyInstaller em modo --onefile, `__file__`/sys._MEIPASS apontam pra uma
+    pasta TEMPORÁRIA, recriada do zero e apagada a cada execução — se
+    `dados/` fosse criada ali, o app "esqueceria" senha, config e log toda
+    vez que fosse fechado e reaberto. A pasta de verdade do .exe, que
+    persiste entre execuções, é a de sys.executable.
+    """
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+DADOS_DIR = os.path.abspath(os.path.join(_pasta_dados_persistente(), "dados"))
 os.makedirs(DADOS_DIR, exist_ok=True)
 
 # Subpastas organizacionais de dados/ — mantém a raiz só com os JSONs de
@@ -207,17 +247,21 @@ MESES_PT = (
     "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 )
-DEFAULT_ADMIN_PLAIN = "Marwin2026"
+# Senha padrão do perfil ADM. Pode (e deve, se possível) ser sobrescrita
+# pela variável de ambiente MARWIN_ADMIN_PASS — mas fica esse valor fixo
+# como padrão pra não depender de configurar nada nem de caçar senha
+# gerada automaticamente em log/console.
+DEFAULT_ADMIN_PLAIN = "Mw2026"
 ADMIN_PASSWORD = os.getenv("MARWIN_ADMIN_PASS") or obter_senha_ou_gerar(
     "MARWIN_ADMIN_PASS", "admin", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_ADMIN_PLAIN
 )
 # Senha em texto claro para envio no header X-Senha ao sincronizar com a nuvem.
 # Se MARWIN_ADMIN_PASS for um hash bcrypt, use MARWIN_ADMIN_PLAIN_PASS com a senha real.
 ADMIN_PLAIN_PASS = os.getenv("MARWIN_ADMIN_PLAIN_PASS") or ADMIN_PASSWORD
-if not os.getenv("MARWIN_ADMIN_PASS"):
-    print(
-        "\n[AVISO DE SEGURANÇA] A variável de ambiente MARWIN_ADMIN_PASS não estava definida.\n"
-        "Uma senha local segura foi gerada e salva em dados/senha_admin.txt para uso imediato.\n"
+if ADMIN_PASSWORD == DEFAULT_ADMIN_PLAIN:
+    logger.warning(
+        "MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. "
+        "Defina a variável de ambiente para usar uma senha própria."
     )
 
 # Try to import bcrypt if available (optional). If ADMIN_PASSWORD is a bcrypt hash, we'll use it.
@@ -249,36 +293,38 @@ def _senha_bate(pw: str, senha_config: str) -> bool:
 # Cada perfil tem sua própria senha e só enxerga as abas relevantes ao seu
 # trabalho. ADM continua usando MARWIN_ADMIN_PASS (compatível com instalações
 # já existentes) e sempre tem acesso a tudo.
-DEFAULT_COOR_PLAIN       = "Coordenacao2026"
-DEFAULT_SERC_PLAIN       = "Secretaria2026"
-DEFAULT_REFEITORIO_PLAIN = "Refeitorio2026"
+#
+# Senhas padrão fixas — sobrescrevíveis pelas variáveis de ambiente
+# correspondentes (MARWIN_COOR_PASS, MARWIN_SERC_PASS) quando quiser trocar,
+# mas sem depender disso pra funcionar.
+#
+# Não existe mais um perfil próprio de Refeitório — quem precisar editar o
+# cardápio ou ver a aba Refeitório usa o login de ADM.
+DEFAULT_COOR_PLAIN = "Mwcoord"
+DEFAULT_SERC_PLAIN = "Mwsec"
 
-COOR_PASSWORD       = os.getenv("MARWIN_COOR_PASS") or obter_senha_ou_gerar("MARWIN_COOR_PASS", "coor", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_COOR_PLAIN)
-SERC_PASSWORD       = os.getenv("MARWIN_SERC_PASS") or obter_senha_ou_gerar("MARWIN_SERC_PASS", "serc", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_SERC_PLAIN)
-REFEITORIO_PASSWORD = os.getenv("MARWIN_REFEITORIO_PASS") or obter_senha_ou_gerar("MARWIN_REFEITORIO_PASS", "refeitorio", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_REFEITORIO_PLAIN)
+COOR_PASSWORD = os.getenv("MARWIN_COOR_PASS") or obter_senha_ou_gerar("MARWIN_COOR_PASS", "coor", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_COOR_PLAIN)
+SERC_PASSWORD = os.getenv("MARWIN_SERC_PASS") or obter_senha_ou_gerar("MARWIN_SERC_PASS", "serc", dados_dir=DADOS_DIR, senha_padrao=DEFAULT_SERC_PLAIN)
 
 for _nome_var, _valor_atual, _valor_padrao in (
     ("MARWIN_COOR_PASS", COOR_PASSWORD, DEFAULT_COOR_PLAIN),
     ("MARWIN_SERC_PASS", SERC_PASSWORD, DEFAULT_SERC_PLAIN),
-    ("MARWIN_REFEITORIO_PASS", REFEITORIO_PASSWORD, DEFAULT_REFEITORIO_PLAIN),
 ):
     if _valor_atual == _valor_padrao:
-        print(
-            f"\n[AVISO DE SEGURANÇA] A variável de ambiente {_nome_var} não está definida.\n"
-            f"O servidor está usando a senha padrão desse perfil. Defina {_nome_var} para maior segurança.\n"
+        logger.warning(
+            f"{_nome_var} não definida — usando a senha padrão desse perfil. "
+            f"Defina {_nome_var} para usar uma senha própria."
         )
 
 PERFIS_SENHAS = {
     "ADM": ADMIN_PASSWORD,
     "COOR": COOR_PASSWORD,
     "SERC": SERC_PASSWORD,
-    "REFEITORIO": REFEITORIO_PASSWORD,
 }
 PERFIS_NOME_EXIBICAO = {
     "ADM": "Administrador(a)",
     "COOR": "Coordenação",
     "SERC": "Secretaria",
-    "REFEITORIO": "Refeitório",
 }
 # Quais abas do Painel Administrativo cada perfil pode ver.
 PERFIS_ABAS = {
@@ -293,9 +339,6 @@ PERFIS_ABAS = {
     },
     "SERC": {
         "Visão Geral", "Editar Eventos", "Frequência", "Histórico", "QR Codes",
-    },
-    "REFEITORIO": {
-        "Visão Geral", "Editar Cardápio", "Refeitório",
     },
 }
 
@@ -329,7 +372,7 @@ def _processar_tentativa_login(senha: str, chave: str = "default"):
 
 
 def _identificar_perfil(pw: str):
-    """Devolve o nome do perfil (ADM/COOR/SERC/REFEITORIO) cuja senha bate
+    """Devolve o nome do perfil (ADM/COOR/SERC) cuja senha bate
     com `pw` — checa ADM primeiro — ou None se nenhuma senha bater."""
     for perfil, senha_config in PERFIS_SENHAS.items():
         if _senha_bate(pw, senha_config):
@@ -379,7 +422,7 @@ def _sync_nuvem(rota, metodo, dados=None):
     if not base:
         logger.debug(f"Sync nuvem ignorado ({rota}): api_url não configurada em cloud_config.json")
         return False
-    if not cfg.get("sincroniz   ar_automatico", True):
+    if not cfg.get("sincronizar_automatico", True):
         logger.debug(f"Sync nuvem ignorado ({rota}): sincronizar_automatico=false")
         return False
     import urllib.request
@@ -468,7 +511,13 @@ def _iniciar_pool_pg():
     try:
         import psycopg2
         from psycopg2 import pool
-        PG_POOL = pool.ThreadedConnectionPool(1, 10, cfg["connection_string"])
+        # connect_timeout: sem isso, se o Neon estiver lento ou inacessível,
+        # psycopg2 podia ficar tentando conectar por muito tempo (bem mais
+        # que alguns segundos) — e como várias telas do painel rodam a
+        # consulta direto na thread principal do Tkinter, isso travava a
+        # janela inteira sem aviso nenhum. Com o timeout, falha rápido e
+        # com uma mensagem de erro clara em vez de travar.
+        PG_POOL = pool.ThreadedConnectionPool(1, 10, cfg["connection_string"], connect_timeout=10)
         logger.info("Pool PostgreSQL inicializado")
     except Exception as e:
         PG_POOL = None
@@ -595,6 +644,18 @@ def _criar_tabelas_neon():
                 origem TEXT NOT NULL,
                 criado_em TEXT NOT NULL,
                 resumo JSONB NOT NULL
+            );
+            """
+        )
+        _executar_pg(
+            """
+            CREATE TABLE IF NOT EXISTS respostas_gestao (
+                id SERIAL PRIMARY KEY,
+                criado_em TEXT NOT NULL,
+                setor TEXT NOT NULL DEFAULT 'Geral',
+                titulo TEXT NOT NULL,
+                mensagem TEXT NOT NULL,
+                autor TEXT
             );
             """
         )
@@ -811,8 +872,12 @@ def _ler_avaliacoes_db():
 
 
 def _ler_avaliacoes_semana_db():
-    """Retorna apenas as avaliações da semana atual (seg–dom).
-    Usada pelo Relatório Semanal, pela aba Avaliações e pela Visão Geral.
+    """Retorna apenas as avaliações da semana atual (seg–dom), filtrando
+    já no banco — não traz mais a tabela inteira pra filtrar em Python.
+    Usada pelo Relatório Semanal, pelo Relatório do Ensino, pela aba
+    Avaliações e pela Visão Geral (todas ficam mais rápidas com isso,
+    principalmente conforme o histórico de avaliações cresce ao longo
+    do ano letivo).
     """
     inicio, fim = _semana_atual_datas()
     inicio_dt = datetime.datetime.strptime(inicio, "%d/%m/%Y").date()
@@ -822,30 +887,28 @@ def _ler_avaliacoes_semana_db():
         """
         SELECT data, aluno, serie, curso, estagio, item, nota
         FROM avaliacoes
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
+          AND TO_DATE(data, 'DD/MM/YYYY') BETWEEN %s AND %s
         ORDER BY data DESC
         """,
-        (),
+        (inicio_dt, fim_dt),
         fetch=True,
     )
     if not rows:
         return []
 
-    filtradas = []
-    for row in rows:
-        data_obj = _parse_data_avaliacao(row["data"])
-        if data_obj and inicio_dt <= data_obj <= fim_dt:
-            filtradas.append(
-                {
-                    "Data": row["data"],
-                    "Aluno": row["aluno"],
-                    "Serie": row["serie"],
-                    "Curso": row["curso"],
-                    "Estagio": row["estagio"],
-                    "Item": row["item"],
-                    "Nota": row["nota"],
-                }
-            )
-    return filtradas
+    return [
+        {
+            "Data": row["data"],
+            "Aluno": row["aluno"],
+            "Serie": row["serie"],
+            "Curso": row["curso"],
+            "Estagio": row["estagio"],
+            "Item": row["item"],
+            "Nota": row["nota"],
+        }
+        for row in rows
+    ]
 
 
 def _ler_refeitorio_todos_db():
@@ -890,6 +953,92 @@ def _ler_frequencia_todos_db():
     ]
 
 
+def _ler_refeitorio_periodo_db(data_inicio, data_fim, serie=None, curso=None):
+    """Como _ler_refeitorio_todos_db, mas filtrando por período (e opcionalmente
+    série/curso) direto no banco — usada pela aba Histórico, que antes
+    trazia a tabela inteira e filtrava em Python (ficava mais lento a
+    cada mês que passava, mesmo pra ver só "hoje").
+
+    data_inicio / data_fim: objetos datetime.date.
+    A coluna `data` é texto "DD/MM/AAAA"; comparar como string (BETWEEN
+    direto) dá resultado errado em semanas/períodos que atravessam virada
+    de mês, por isso convertemos com TO_DATE antes de comparar.
+    """
+    sql = """
+        SELECT data, horaentrada, matricula, nome, serie, curso, refeicao
+        FROM refeitorio
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
+          AND TO_DATE(data, 'DD/MM/YYYY') BETWEEN %s AND %s
+    """
+    params = [data_inicio, data_fim]
+    if serie and serie != "(Todas)":
+        sql += " AND serie ILIKE %s"
+        params.append(f"%{serie}%")
+    if curso and curso != "(Todos)":
+        sql += " AND curso ILIKE %s"
+        params.append(f"%{curso}%")
+    sql += " ORDER BY data DESC, horaentrada DESC"
+    rows = _executar_pg(sql, tuple(params), fetch=True)
+    if not rows:
+        return []
+    return [
+        [row["data"], row["horaentrada"], row["matricula"], row["nome"], row["serie"], row["curso"], row["refeicao"]]
+        for row in rows
+    ]
+
+
+def _ler_frequencia_periodo_db(data_inicio, data_fim, serie=None, curso=None):
+    """Mesma ideia de _ler_refeitorio_periodo_db, para a tabela frequencia."""
+    sql = """
+        SELECT data, horaentrada, matricula, nome, serie, curso, aula
+        FROM frequencia
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
+          AND TO_DATE(data, 'DD/MM/YYYY') BETWEEN %s AND %s
+    """
+    params = [data_inicio, data_fim]
+    if serie and serie != "(Todas)":
+        sql += " AND serie ILIKE %s"
+        params.append(f"%{serie}%")
+    if curso and curso != "(Todos)":
+        sql += " AND curso ILIKE %s"
+        params.append(f"%{curso}%")
+    sql += " ORDER BY data DESC, horaentrada DESC"
+    rows = _executar_pg(sql, tuple(params), fetch=True)
+    if not rows:
+        return []
+    return [
+        [row["data"], row["horaentrada"], row["matricula"], row["nome"], row["serie"], row["curso"], row["aula"]]
+        for row in rows
+    ]
+
+
+SETORES_AVALIACAO = ["Geral", "Comida", "Limpeza", "Ensino", "Acolhimento"]
+
+
+def _inserir_resposta_gestao_db(setor, titulo, mensagem, autor=None):
+    setor = setor if setor in SETORES_AVALIACAO else "Geral"
+    criado_em = _agora_br().strftime("%d/%m/%Y %H:%M")
+    _executar_pg(
+        "INSERT INTO respostas_gestao (criado_em, setor, titulo, mensagem, autor) "
+        "VALUES (%s, %s, %s, %s, %s)",
+        (criado_em, setor, titulo, mensagem, autor),
+    )
+
+
+def _ler_respostas_gestao_db(limite=50):
+    rows = _executar_pg(
+        "SELECT id, criado_em, setor, titulo, mensagem, autor FROM respostas_gestao "
+        "ORDER BY id DESC LIMIT %s",
+        (limite,),
+        fetch=True,
+    )
+    return rows or []
+
+
+def _apagar_resposta_gestao_db(resposta_id):
+    _executar_pg("DELETE FROM respostas_gestao WHERE id = %s", (resposta_id,))
+
+
 def _avaliacoes_para_linhas():
     return [
         [r["Data"], r["Aluno"], r["Serie"], r["Curso"], r["Estagio"], r["Item"], r["Nota"]]
@@ -898,7 +1047,7 @@ def _avaliacoes_para_linhas():
 
 
 def _escrever_csv(caminho, header, linhas):
-    with open(caminho, "w", newline="", encoding="utf-8") as f:
+    with open(caminho, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
         w.writerow(header)
         w.writerows(linhas)
@@ -909,7 +1058,10 @@ def _csv_bytes(header, linhas):
     w = csv.writer(buf)
     w.writerow(header)
     w.writerows(linhas)
-    out = io.BytesIO(buf.getvalue().encode("utf-8"))
+    # "utf-8-sig" grava o BOM no início do arquivo. Sem ele, o Excel (padrão
+    # em máquinas Windows/PT-BR) abre o CSV usando a codificação padrão do
+    # Windows em vez de UTF-8, e todo acento vira caractere quebrado.
+    out = io.BytesIO(buf.getvalue().encode("utf-8-sig"))
     out.seek(0)
     return out
 
@@ -948,13 +1100,24 @@ def _exportar_backup_mensal_csv(nome_base):
     return pasta, arquivos
 
 
-def _avaliacao_ja_existe_db(nome, semana_iso, ano_iso):
+def _avaliacao_ja_existe_db(nome, semana_iso, ano_iso, serie=None, curso=None):
+    """Verifica se o aluno já avaliou nesta semana ISO.
+
+    Compara nome + serie + curso (não só o nome) para não bloquear alunos
+    homônimos de turmas diferentes entre si — mesmo ajuste feito em
+    marwin_db.avaliacao_ja_existe_db (usado pela API na nuvem).
+    """
     if not nome:
         return False
     try:
         rows = _executar_pg(
-            "SELECT data FROM avaliacoes WHERE lower(aluno) = lower(%s)",
-            (nome,),
+            """
+            SELECT data FROM avaliacoes
+            WHERE lower(aluno) = lower(%s)
+              AND lower(COALESCE(serie, '')) = lower(COALESCE(%s, ''))
+              AND lower(COALESCE(curso, '')) = lower(COALESCE(%s, ''))
+            """,
+            (nome, serie, curso),
             fetch=True
         )
     except Exception as e:
@@ -1049,7 +1212,7 @@ def _importar_csv_para_banco(caminho_csv, ignorar_duplicatas=True, callback_prog
     dict com chaves: tabela, inseridos, ignorados, erros
     Levanta ValueError se o arquivo não puder ser identificado.
     """
-    with open(caminho_csv, "r", encoding="utf-8") as f:
+    with open(caminho_csv, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         linhas = list(reader)
 
@@ -1117,7 +1280,7 @@ def _importar_csv_para_banco_forcado(caminho_csv, tabela, ignorar_duplicatas=Tru
     Versão de _importar_csv_para_banco com tabela de destino forçada manualmente.
     Usada quando a detecção automática falha e o usuário escolheu a tabela no diálogo.
     """
-    with open(caminho_csv, "r", encoding="utf-8") as f:
+    with open(caminho_csv, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         linhas = list(reader)
 
@@ -1204,7 +1367,7 @@ def checar_senha(req):
 # Rota para servir o cliente web (index.html)
 @app.route('/')
 def serve_cliente():
-    pasta_raiz = os.path.dirname(os.path.abspath(__file__))
+    pasta_raiz = _pasta_recursos()
     for nome in ('index.html', 'Index.html'):
         arquivo_index = os.path.join(pasta_raiz, nome)
         if os.path.isfile(arquivo_index):
@@ -1215,7 +1378,7 @@ def serve_cliente():
 @app.route('/<path:path>')
 def serve_static(path):
     try:
-        pasta_raiz = os.path.dirname(os.path.abspath(__file__))
+        pasta_raiz = _pasta_recursos()
         arquivo = os.path.join(pasta_raiz, path)
         # Segurança: evitar acesso fora da pasta raiz
         caminho_absoluto = os.path.abspath(arquivo)
@@ -1263,7 +1426,7 @@ def post_avaliacao():
         ano_iso = hoje.isocalendar()[0]
 
         try:
-            if _avaliacao_ja_existe_db(nome, semana_iso, ano_iso):
+            if _avaliacao_ja_existe_db(nome, semana_iso, ano_iso, serie=serie, curso=curso):
                 logger.warning(f"Avaliação duplicada detectada: {nome} - Semana {semana_iso}/{ano_iso}")
                 return jsonify({"status": "ja_avaliou", "mensagem": "Você já avaliou esta semana"}), 200
         except Exception as e:
@@ -1294,6 +1457,8 @@ def post_avaliacao():
 @app.route("/avaliacao/verificar", methods=["GET"])
 def verificar_avaliacao():
     nome = request.args.get("nome", "").strip()
+    serie = request.args.get("serie", "").strip()
+    curso = request.args.get("curso", "").strip()
     if not nome or nome.lower() in {"anonimo", "anônimo"}:
         return jsonify({"ja_avaliou": False}), 200
 
@@ -1302,7 +1467,7 @@ def verificar_avaliacao():
     ano_iso = hoje.isocalendar()[0]
 
     try:
-        ja_avaliou = _avaliacao_ja_existe_db(nome, semana_iso, ano_iso)
+        ja_avaliou = _avaliacao_ja_existe_db(nome, semana_iso, ano_iso, serie=serie, curso=curso)
         return jsonify({"ja_avaliou": ja_avaliou}), 200
     except RuntimeError as e:
         logger.error(f"PostgreSQL indisponível: {e}")
@@ -1543,6 +1708,11 @@ def apagar_refeitorio():
 
 @app.route("/refeitorio/qrcode/<matricula>", methods=["GET"])
 def gerar_qrcode_img(matricula):
+    # Sem essa checagem, qualquer pessoa que soubesse (ou tentasse em
+    # sequência) uma matrícula conseguia baixar o QR code de outro aluno —
+    # risco de fraude de presença/refeição. Rota só para uso do painel admin.
+    if not checar_senha(request):
+        return jsonify({"erro": "Acesso negado"}), 403
     matricula = (matricula or "").strip()
 
     # 1) Procura a imagem já salva em dados/qrcodes_marwin/ (e em qualquer
@@ -1604,7 +1774,13 @@ def buscar_aluno_cadastro(matricula):
     matrícula. Usado pelo index.html para corrigir, no instante da
     leitura do QR Code, nomes que o leitor USB tenha corrompido (acento
     fantasma fundido pelo Windows etc.) — antes mesmo de registrar
-    presença/refeição."""
+    presença/refeição.
+
+    Exige autenticação: sem isso, qualquer pessoa conseguiria varrer
+    matrículas (muitas vezes sequenciais) e coletar nome/série/curso de
+    todo o corpo discente."""
+    if not checar_senha(request):
+        return jsonify({"erro": "Acesso negado"}), 403
     aluno = _buscar_aluno_por_matricula((matricula or "").strip())
     if not aluno:
         return jsonify({"erro": "Aluno nao encontrado"}), 404
@@ -2178,6 +2354,7 @@ def abrir_painel_admin_ctk(event=None):
     TODOS_ITENS_MENU = [
         ("🏠", "Visão Geral"),
         ("📋", "Avaliações"),
+        # ("📢", "Respostas da Gestão"),  # desativado por enquanto — não usado
         ("📅", "Relatório Semanal"),
         ("📚", "Relatório do Ensino"),
         ("🍽️", "Editar Cardápio"),
@@ -2295,6 +2472,18 @@ def abrir_painel_admin_ctk(event=None):
                         _avaliacoes_para_linhas, _agora_br, _apagar_avaliacoes_db,
                         CONFIG_FILE,
                     )
+                elif nome == "Respostas da Gestão":
+                    paginas[nome] = _criar_pagina_respostas_extraida(
+                        _scroll_inner,
+                        {
+                            "CINZA_BG": CINZA_BG, "BRANCO": BRANCO,
+                            "TEXTO_CINZA": TEXTO_CINZA, "TEXTO_ESCURO": TEXTO_ESCURO,
+                            "VERDE_VIBRANTE": VERDE_VIBRANTE, "VERDE_ESCURO": VERDE_ESCURO,
+                        },
+                        _agora_br, _inserir_resposta_gestao_db,
+                        _ler_respostas_gestao_db, _apagar_resposta_gestao_db,
+                        PERFIS_NOME_EXIBICAO.get(perfil, perfil),
+                    )
                 elif nome == "Relatório Semanal":
                     paginas[nome] = _criar_pagina_relatorio_semanal_extraida(
                         _scroll_inner,
@@ -2394,6 +2583,7 @@ def abrir_painel_admin_ctk(event=None):
                             "AZUL_CLARO": AZUL_CLARO, "ROXO_CLARO": ROXO_CLARO,
                         },
                         _agora_br, _ler_frequencia_todos_db, _ler_refeitorio_todos_db,
+                        _ler_frequencia_periodo_db, _ler_refeitorio_periodo_db,
                     )
                 elif nome == "QR Codes":
                     paginas[nome] = _criar_pagina_qrcodes_extraida(
@@ -2669,7 +2859,7 @@ def iniciar_tkinter(url_publica):
         from PIL import Image as _PilImg, ImageTk as _PilImgTk
         _path_marwin = _buscar_logo_png()
         if not _path_marwin:
-            _pasta = os.path.dirname(os.path.abspath(__file__))
+            _pasta = _pasta_recursos()
             _path_marwin = os.path.join(_pasta, "logo_marwin.png")
         if os.path.exists(_path_marwin):
             _img = _PilImg.open(_path_marwin).convert("RGBA")
@@ -2809,8 +2999,8 @@ if __name__ == "__main__":
     _iniciar_pool_pg()
     try:
         _criar_tabelas_neon()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Falha ao criar/verificar tabelas no Neon na inicialização: {e}")
     if _cloud_api_url():
         threading.Thread(target=_sincronizar_tudo_nuvem, daemon=True).start()
 

@@ -4,7 +4,7 @@ import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from paineis.helpers import card_resumo, iniciar_polling
+from paineis.helpers import card_resumo, iniciar_polling, classificar_nota
 
 
 def _norm(texto):
@@ -53,9 +53,10 @@ def processar_avaliacoes_ensino(registros):
         dados["quantidade"] += 1
         dados["notas"].append(nota)
 
-        if nota >= 4:
+        classe = classificar_nota(nota)
+        if classe == "Bom":
             boa += 1
-        elif nota >= 2:
+        elif classe == "Medio":
             media += 1
         else:
             ruim += 1
@@ -242,13 +243,22 @@ def criar_pagina_relatorio_ensino(_scroll_inner, cores, _agora_br, _ler_avaliaco
         lbl_itens.configure(text=str(len(stats['itens'])))
 
     def carregar_dados():
-        try:
-            registros = _ler_avaliacoes_semana_db()
-        except Exception:
-            registros = []
-        stats = processar_avaliacoes_ensino(registros)
-        if _ativo["vivo"] and page.winfo_exists():
-            _renderizar(stats)
+        # A consulta ao banco roda numa thread separada — antes rodava
+        # direto aqui (na thread principal do Tkinter), e travava a janela
+        # inteira até o Neon responder, toda vez que a aba abria ou o
+        # polling detectava uma avaliação nova. Só o resultado já pronto
+        # (stats) volta pra thread principal via page.after, porque widgets
+        # do Tkinter só podem ser tocados dali.
+        def _thread_body():
+            try:
+                registros = _ler_avaliacoes_semana_db()
+            except Exception:
+                registros = []
+            stats = processar_avaliacoes_ensino(registros)
+            if _ativo["vivo"] and page.winfo_exists():
+                page.after(0, lambda: _renderizar(stats))
+
+        threading.Thread(target=_thread_body, daemon=True).start()
 
     carregar_dados()
     iniciar_polling(page, carregar_dados)

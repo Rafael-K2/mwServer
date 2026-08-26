@@ -10,6 +10,7 @@ from tkinter import messagebox
 
 from paineis.helpers import card_resumo
 from paineis.helpers import iniciar_polling
+from paineis.helpers import confirmar_exclusao
 
 
 def criar_pagina_logs(_scroll_inner, cores, logger, _agora_br, LOG_FILE):
@@ -154,7 +155,12 @@ def criar_pagina_logs(_scroll_inner, cores, logger, _agora_br, LOG_FILE):
         return linhas[-max_linhas:]
 
     def limpar_logs():
-        if not messagebox.askyesno("Confirmar", "Limpar todos os logs do sistema?\nEsta ação não pode ser desfeita."):
+        if not confirmar_exclusao(
+            page.winfo_toplevel(),
+            "Limpar logs do sistema",
+            "Isso apaga permanentemente todo o histórico de eventos registrados até agora.",
+            cores,
+        ):
             return
         try:
             open(LOG_FILE, "w", encoding="utf-8").close()

@@ -11,6 +11,7 @@ from tkinter import messagebox
 
 from paineis.helpers import card_resumo
 from paineis.helpers import iniciar_polling
+from paineis.helpers import confirmar_exclusao
 
 
 def criar_pagina_refeitorio(_scroll_inner, cores, _hoje,
@@ -461,7 +462,12 @@ def criar_pagina_refeitorio(_scroll_inner, cores, _hoje,
 
     # ── Apagar registros de hoje ──────────────────────────────────────────
     def apagar_hoje():
-        if not messagebox.askyesno("Confirmar", f"Apagar todos os registros de hoje ({_hoje()})?"):
+        if not confirmar_exclusao(
+            page.winfo_toplevel(),
+            "Apagar registros do refeitório de hoje",
+            f"Isso remove permanentemente todos os registros de refeição de hoje ({_hoje()}).",
+            cores,
+        ):
             return
         try:
             _apagar_refeitorio_data_db(_hoje())
@@ -491,5 +497,5 @@ def criar_pagina_refeitorio(_scroll_inner, cores, _hoje,
     page.after(150, atualizar_ref)
     cv_donut.bind("<Configure>", lambda e: atualizar_ref())
 
-    iniciar_polling(page, atualizar_ref())
+    iniciar_polling(page, atualizar_ref)
     return page

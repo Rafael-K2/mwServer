@@ -17,7 +17,8 @@ from paineis.helpers import iniciar_polling
 
 
 def criar_pagina_historico(_scroll_inner, cores, _agora_br,
-                            _ler_frequencia_todos_db, _ler_refeitorio_todos_db):
+                            _ler_frequencia_todos_db, _ler_refeitorio_todos_db,
+                            _ler_frequencia_periodo_db=None, _ler_refeitorio_periodo_db=None):
     """Cria e retorna o frame da página "Histórico".
 
     Parâmetros
@@ -30,7 +31,12 @@ def criar_pagina_historico(_scroll_inner, cores, _agora_br,
     _agora_br : callable
         Devolve datetime atual no fuso do Brasil.
     _ler_frequencia_todos_db, _ler_refeitorio_todos_db : callables
-        Leem todos os registros do banco para montar o histórico.
+        Leem todos os registros do banco (fallback, mantido por
+        compatibilidade — evitar usar em bases grandes).
+    _ler_frequencia_periodo_db, _ler_refeitorio_periodo_db : callables opcionais
+        Leem só o período (e opcionalmente série/curso) já filtrado no
+        banco. Preferidos: evitam trazer o histórico inteiro toda vez que
+        a tela é aberta ou o filtro muda.
     """
     CINZA_BG       = cores["CINZA_BG"]
     BRANCO         = cores["BRANCO"]
@@ -214,7 +220,14 @@ def criar_pagina_historico(_scroll_inner, cores, _agora_br,
 
         def _thread_body():
             try:
-                linhas = _ler_frequencia_todos_db() if eh_frequencia else _ler_refeitorio_todos_db()
+                if eh_frequencia and _ler_frequencia_periodo_db:
+                    linhas = _ler_frequencia_periodo_db(d_inicio, d_fim, f_serie, f_curso)
+                elif not eh_frequencia and _ler_refeitorio_periodo_db:
+                    linhas = _ler_refeitorio_periodo_db(d_inicio, d_fim, f_serie, f_curso)
+                else:
+                    # Fallback (sem as funções filtradas): comportamento antigo,
+                    # traz tudo e filtra aqui. Mantido só por compatibilidade.
+                    linhas = _ler_frequencia_todos_db() if eh_frequencia else _ler_refeitorio_todos_db()
             except Exception as e:
                 page.after(0, lambda: lbl_status.configure(
                     text=f"⚠ Falha ao carregar: {e}", text_color="#C62828"))
@@ -429,7 +442,7 @@ def criar_pagina_historico(_scroll_inner, cores, _agora_br,
         try:
             nome_arq = f"historico_marwin_{_agora_br().strftime('%d_%m_%Y')}.csv"
             eh_frequencia = _estado["tipo"] == "frequencia"
-            with open(nome_arq, "w", newline="", encoding="utf-8") as f:
+            with open(nome_arq, "w", newline="", encoding="utf-8-sig") as f:
                 w = csv.writer(f)
                 w.writerow(["Data", "Total", "Almocos/Presentes", "NaoAlmocos/Ausentes", "%Adesao/Presenca"])
                 for data_obj in sorted(dados.keys(), reverse=True):
@@ -515,5 +528,5 @@ def criar_pagina_historico(_scroll_inner, cores, _agora_br,
     cb_curso.configure(command=lambda _: buscar_historico())
 
     buscar_historico()
-    iniciar_polling(page, buscar_historico())
+    iniciar_polling(page, buscar_historico)
     return page

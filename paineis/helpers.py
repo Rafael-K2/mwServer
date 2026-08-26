@@ -9,6 +9,98 @@ Frequência, Histórico, Logs.
 import customtkinter as ctk
 
 
+def classificar_nota(nota):
+    """Recebe uma nota de 1 a 5 (int/float/str numérica) e retorna
+    'Bom', 'Medio' ou 'Ruim'. Retorna None se não for numérica.
+
+    Antes essa mesma regra (nota>=4 → Bom, nota>=2 → Médio, senão Ruim)
+    estava copiada em pagina_avaliacoes.py, pagina_relatorio_ensino.py e
+    pagina_relatorio_semanal.py. Hoje os três concordavam entre si, mas
+    cada um podia divergir silenciosamente se alguém mudasse o critério
+    em só um lugar — por isso centralizada aqui.
+    """
+    try:
+        n = float(str(nota).strip().replace(",", "."))
+    except (TypeError, ValueError):
+        return None
+    if n >= 4:
+        return "Bom"
+    if n >= 2:
+        return "Medio"
+    return "Ruim"
+
+
+def confirmar_exclusao(janela, titulo, mensagem, cores, palavra="APAGAR"):
+    """Diálogo de confirmação por texto digitado para ações destrutivas
+    e irreversíveis (apagar todos os registros de hoje, limpar logs etc.).
+
+    Um simples sim/não é fácil de clicar sem perceber a gravidade. Aqui o
+    usuário precisa digitar a palavra de confirmação exata para o botão
+    de confirmar habilitar — mesmo padrão já usado na exclusão total do
+    banco (Servidor.py / limpar Neon), só que reutilizável em qualquer aba.
+
+    Retorna True se confirmado, False se cancelado. Bloqueia a janela
+    (modal) até o usuário decidir.
+    """
+    BRANCO = cores.get("BRANCO", "#FFFFFF")
+    TEXTO_ESCURO = cores.get("TEXTO_ESCURO", "#1F2937")
+    TEXTO_CINZA = cores.get("TEXTO_CINZA", "#6B7280")
+
+    resultado = {"ok": False}
+
+    dlg = ctk.CTkToplevel(janela)
+    dlg.title(titulo)
+    dlg.configure(fg_color=BRANCO)
+    dlg.transient(janela)
+    dlg.grab_set()
+    dlg.resizable(False, False)
+    dlg.geometry("420x260")
+
+    ctk.CTkLabel(dlg, text="⚠️ " + titulo, font=("Segoe UI", 15, "bold"),
+                 text_color="#C62828").pack(anchor="w", padx=20, pady=(20, 6))
+    ctk.CTkLabel(dlg, text=mensagem, font=("Segoe UI", 12), text_color=TEXTO_ESCURO,
+                 justify="left", wraplength=380).pack(anchor="w", padx=20, pady=(0, 10))
+    ctk.CTkLabel(
+        dlg,
+        text=f"Esta ação não pode ser desfeita. Digite {palavra} para confirmar:",
+        font=("Segoe UI", 11, "bold"), text_color=TEXTO_CINZA,
+        justify="left", wraplength=380,
+    ).pack(anchor="w", padx=20, pady=(0, 6))
+
+    entrada = ctk.CTkEntry(dlg, font=("Segoe UI", 13), height=36)
+    entrada.pack(fill="x", padx=20, pady=(0, 14))
+    entrada.focus()
+
+    botoes = ctk.CTkFrame(dlg, fg_color="transparent")
+    botoes.pack(fill="x", padx=20, pady=(0, 20))
+
+    btn_confirmar = ctk.CTkButton(botoes, text="Apagar definitivamente", state="disabled",
+                                   fg_color="#C62828", hover_color="#8E1F1F",
+                                   font=("Segoe UI", 12, "bold"), height=38)
+    btn_confirmar.pack(side="right")
+
+    def _fechar(ok):
+        resultado["ok"] = ok
+        dlg.grab_release()
+        dlg.destroy()
+
+    def _checar_texto(*_a):
+        btn_confirmar.configure(
+            state="normal" if entrada.get().strip().upper() == palavra else "disabled"
+        )
+
+    entrada.bind("<KeyRelease>", _checar_texto)
+    btn_confirmar.configure(command=lambda: _fechar(True))
+    ctk.CTkButton(botoes, text="Cancelar", fg_color="transparent", border_width=1,
+                  text_color=TEXTO_ESCURO, hover_color="#F3F4F6",
+                  font=("Segoe UI", 12), height=38,
+                  command=lambda: _fechar(False)).pack(side="right", padx=(0, 8))
+    dlg.protocol("WM_DELETE_WINDOW", lambda: _fechar(False))
+
+    dlg.wait_window()
+    return resultado["ok"]
+
+
 def card_resumo(parent, row, col, icone, cor_fundo, cor_icone, titulo, valor,
                  subtitulo, cores):
     """Card pequeno com ícone + número + subtítulo (ex: "Total: 42 alunos").

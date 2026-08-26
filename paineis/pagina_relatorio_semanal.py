@@ -32,6 +32,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from paineis.helpers import card_resumo
 from paineis.helpers import iniciar_polling
+from paineis.helpers import classificar_nota
 
 
 def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliacoes_db):
@@ -146,9 +147,10 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
             if nota is None:
                 continue
             por_setor_item[estagio].setdefault(item, []).append(nota)
-            if nota >= 4:
+            classe = classificar_nota(nota)
+            if classe == "Bom":
                 boa += 1
-            elif nota >= 2:
+            elif classe == "Medio":
                 media += 1
             else:
                 ruim += 1

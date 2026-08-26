@@ -650,10 +650,20 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
                 try:
                     import openpyxl
                 except ImportError:
-                    lbl_import_status.configure(text="Instalando openpyxl...", text_color=TEXTO_CINZA)
+                    lbl_import_status.configure(
+                        text="Biblioteca openpyxl não encontrada — instalando automaticamente "
+                             "(precisa de internet)...", text_color=TEXTO_CINZA)
                     page.update()
                     import sys, subprocess
-                    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl", "--quiet"])
+                    try:
+                        subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl", "--quiet"])
+                    except subprocess.CalledProcessError:
+                        lbl_import_status.configure(
+                            text="⚠ Não foi possível instalar a biblioteca openpyxl automaticamente "
+                                 "(confira sua conexão com a internet). Alternativa: salve a planilha "
+                                 "como .csv e importe de novo.",
+                            text_color="#C62828")
+                        return
                     import openpyxl
                 wb = openpyxl.load_workbook(caminho_pl, read_only=True, data_only=True)
                 ws = wb.active
@@ -672,7 +682,7 @@ def criar_pagina_qrcodes(_scroll_inner, cores, DADOS_DIR):
                             reader_pl = csv.reader(f, delimiter=sep)
                             linhas_raw = [[c.strip() for c in row] for row in reader_pl]
                         break
-                    except (UnicodeDecodeError, Exception):
+                    except Exception:
                         continue
             else:
                 lbl_import_status.configure(text="⚠ Use .xlsx, .xls, .csv ou .tsv", text_color="#C62828")

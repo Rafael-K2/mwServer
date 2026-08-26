@@ -9,6 +9,8 @@ from tkinter import messagebox
 
 from paineis.helpers import card_resumo
 from paineis.helpers import iniciar_polling
+from paineis.helpers import confirmar_exclusao
+from paineis.helpers import classificar_nota
 
 
 def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
@@ -156,11 +158,9 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
             categoria = "Almoço favorito" if _eh_almoco_favorito(item) else "Avaliação"
             resposta = nota
             if str(estagio) == "4" and not _eh_almoco_favorito(item):
-                try:
-                    n_val = float(nota)
-                    resposta = "Ruim" if n_val <= 1 else ("Medio" if n_val <= 3 else "Bom")
-                except Exception:
-                    pass
+                classe = classificar_nota(nota)
+                if classe:
+                    resposta = classe
             if resposta == "Bom":   pos += 1
             elif resposta == "Medio": neu += 1
             elif resposta == "Ruim":  neg += 1
@@ -344,7 +344,13 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
                           fg_color=VERDE_VIBRANTE, command=salvar_config).pack(side="left", padx=6)
 
     def apagar_tudo():
-        if messagebox.askyesno("Aviso", "Apagar todos os dados?"):
+        if confirmar_exclusao(
+            _scroll_inner.winfo_toplevel(),
+            "Apagar todas as avaliações",
+            "Isso remove permanentemente TODAS as avaliações já registradas no banco "
+            "(de todas as semanas, não só as filtradas na tela).",
+            cores,
+        ):
             try:
                 _apagar_avaliacoes_db()
                 carregar_dados()
@@ -357,5 +363,5 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
                     command=apagar_tudo).pack(side="right")
 
     carregar_dados()
-    iniciar_polling(page, carregar_dados())
+    iniciar_polling(page, carregar_dados)
     return page
