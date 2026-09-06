@@ -1,5 +1,5 @@
 {
-  "avaliacoes_ativas": false,
+  "avaliacoes_ativas": true,
   "modo_leitura": "usb",
   "painel_avisos": [
     "Não esqueça seu qrcode !!!"

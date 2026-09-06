@@ -495,6 +495,7 @@ if not DB_DEFAULT_CONNECTION:
         "Exemplo: set MARWIN_DB_URL=postgresql://usuario:senha@host/neondb?sslmode=require\n"
     )
 PG_POOL = None
+_FLASK_THREAD = None  # referência à thread do servidor Flask local, pra checagem honesta de status no Diagnóstico
 
 def _carregar_db_config():
     cfg = ler_json(DB_CONFIG_FILE, {})
@@ -522,6 +523,75 @@ def _iniciar_pool_pg():
     except Exception as e:
         PG_POOL = None
         logger.warning("PostgreSQL indisponível")
+
+
+def _diagnosticar_db():
+    """Testa a conexão com o banco DE VERDADE (não só olha se o pool já
+    existe) e tenta reconhecer a causa provável do problema, em português
+    simples — pra quem estiver na frente da tela (mesmo sem saber nada
+    técnico) já ver a explicação e poder mandar print, sem precisar rodar
+    comando nenhum.
+    """
+    cfg = _carregar_db_config()
+    connection_string = (cfg.get("connection_string") or "").strip()
+
+    if not connection_string:
+        return {
+            "status": "Sem configuração",
+            "detalhe": (
+                "O endereço do banco de dados não está configurado neste "
+                "computador — o arquivo dados/db_config.json está vazio. "
+                "Abra esse arquivo e preencha o campo \"connection_string\" "
+                "com o endereço do Neon."
+            ),
+        }
+
+    try:
+        import psycopg2
+        conn = psycopg2.connect(connection_string, connect_timeout=6)
+        conn.close()
+        return {"status": "Online", "detalhe": "Conexão com o banco funcionando normalmente."}
+    except Exception as e:
+        msg = str(e).lower()
+        if "timeout" in msg or "timed out" in msg:
+            detalhe = (
+                "A conexão demorou demais e falhou por tempo esgotado. Isso "
+                "normalmente significa que a REDE deste computador está "
+                "bloqueando a porta do banco de dados (comum em redes de "
+                "escola/empresa mais restritas, como a de um setor "
+                "administrativo). Fale com quem cuida da rede da escola pra "
+                "liberar a porta 5432 de saída para o Neon — não é algo que "
+                "se resolve reinstalando o programa."
+            )
+        elif "could not translate host name" in msg or "name or service not known" in msg or "getaddrinfo" in msg or "nodename nor servname" in msg:
+            detalhe = (
+                "Não foi possível encontrar o endereço do banco na internet "
+                "(erro de DNS). Confira se este computador tem acesso à "
+                "internet, ou se o endereço em dados/db_config.json está "
+                "digitado certo."
+            )
+        elif "password authentication failed" in msg or "authentication failed" in msg:
+            detalhe = (
+                "O endereço do banco foi encontrado, mas o usuário/senha "
+                "configurados em dados/db_config.json estão incorretos."
+            )
+        else:
+            detalhe = f"Falha ao conectar com o banco: {e}"
+        return {"status": "Offline", "detalhe": detalhe}
+
+
+def _diagnosticar_sistema():
+    """Combina o diagnóstico do banco com o status honesto do servidor
+    Flask local (antes a aba Diagnóstico sempre mostrava "API: Online",
+    fixo, sem checar nada de verdade)."""
+    db = _diagnosticar_db()
+    api_online = bool(_FLASK_THREAD and _FLASK_THREAD.is_alive())
+    return {
+        "db_status": db["status"],
+        "db_detalhe": db["detalhe"],
+        "api_status": "Online" if api_online else "Offline",
+    }
+
 
 def get_pg_conn():
     global PG_POOL
@@ -878,6 +948,11 @@ def _ler_avaliacoes_semana_db():
     Avaliações e pela Visão Geral (todas ficam mais rápidas com isso,
     principalmente conforme o histórico de avaliações cresce ao longo
     do ano letivo).
+
+    Diferente de refeitorio/frequencia (que guardam só a data), a coluna
+    `data` de avaliacoes vem como "DD/MM/AAAA HH:MM:SS" (hora gravada
+    junto). Por isso pegamos só os 10 primeiros caracteres (SUBSTRING)
+    antes de converter com TO_DATE.
     """
     inicio, fim = _semana_atual_datas()
     inicio_dt = datetime.datetime.strptime(inicio, "%d/%m/%Y").date()
@@ -887,8 +962,8 @@ def _ler_avaliacoes_semana_db():
         """
         SELECT data, aluno, serie, curso, estagio, item, nota
         FROM avaliacoes
-        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
-          AND TO_DATE(data, 'DD/MM/YYYY') BETWEEN %s AND %s
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}'
+          AND TO_DATE(SUBSTRING(data FROM 1 FOR 10), 'DD/MM/YYYY') BETWEEN %s AND %s
         ORDER BY data DESC
         """,
         (inicio_dt, fim_dt),
@@ -897,6 +972,108 @@ def _ler_avaliacoes_semana_db():
     if not rows:
         return []
 
+    return [
+        {
+            "Data": row["data"],
+            "Aluno": row["aluno"],
+            "Serie": row["serie"],
+            "Curso": row["curso"],
+            "Estagio": row["estagio"],
+            "Item": row["item"],
+            "Nota": row["nota"],
+        }
+        for row in rows
+    ]
+
+
+def _ler_avaliacoes_periodo_db(data_inicio, data_fim):
+    """Retorna avaliações entre duas datas (inclusive), filtrando no SQL.
+    Usada pelo Relatório Semanal pra deixar navegar entre semanas
+    (anterior/atual/seguinte), em vez de ficar travado só na atual.
+
+    data_inicio / data_fim: objetos datetime.date.
+    """
+    rows = _executar_pg(
+        """
+        SELECT data, aluno, serie, curso, estagio, item, nota
+        FROM avaliacoes
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}'
+          AND TO_DATE(SUBSTRING(data FROM 1 FOR 10), 'DD/MM/YYYY') BETWEEN %s AND %s
+        ORDER BY data DESC
+        """,
+        (data_inicio, data_fim),
+        fetch=True,
+    )
+    if not rows:
+        return []
+    return [
+        {
+            "Data": row["data"],
+            "Aluno": row["aluno"],
+            "Serie": row["serie"],
+            "Curso": row["curso"],
+            "Estagio": row["estagio"],
+            "Item": row["item"],
+            "Nota": row["nota"],
+        }
+        for row in rows
+    ]
+
+
+def _ler_avaliacoes_dia_db(data_str):
+    """Retorna as avaliações de UM dia específico (formato DD/MM/AAAA),
+    filtrando no SQL — usada pela aba Avaliações quando o admin digita
+    uma data completa no filtro, pra poder consultar qualquer dia do
+    histórico, não só a semana atual.
+    """
+    try:
+        data_dt = datetime.datetime.strptime(data_str.strip(), "%d/%m/%Y").date()
+    except ValueError:
+        return None  # não é uma data completa válida — o chamador decide o que fazer
+
+    rows = _executar_pg(
+        """
+        SELECT data, aluno, serie, curso, estagio, item, nota
+        FROM avaliacoes
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}'
+          AND TO_DATE(SUBSTRING(data FROM 1 FOR 10), 'DD/MM/YYYY') = %s
+        ORDER BY data DESC
+        """,
+        (data_dt,),
+        fetch=True,
+    )
+    if not rows:
+        return []
+    return [
+        {
+            "Data": row["data"],
+            "Aluno": row["aluno"],
+            "Serie": row["serie"],
+            "Curso": row["curso"],
+            "Estagio": row["estagio"],
+            "Item": row["item"],
+            "Nota": row["nota"],
+        }
+        for row in rows
+    ]
+
+
+def _ler_avaliacoes_todas_db():
+    """Retorna TODAS as avaliações já registradas, sem filtro de data.
+    Usada como último recurso pela aba Avaliações quando o texto digitado
+    no filtro de data não é uma data completa (ex.: só "2026" ou "08/2026")
+    — nesses casos não dá pra filtrar no SQL com precisão, então trazemos
+    tudo e filtramos em Python, como já era feito antes. Mais lenta que as
+    outras buscas, mas só roda quando o admin pede uma busca de texto
+    parcial de propósito, não no caminho comum do dia a dia.
+    """
+    rows = _executar_pg(
+        "SELECT data, aluno, serie, curso, estagio, item, nota FROM avaliacoes ORDER BY data DESC",
+        (),
+        fetch=True,
+    )
+    if not rows:
+        return []
     return [
         {
             "Data": row["data"],
@@ -1039,10 +1216,28 @@ def _apagar_resposta_gestao_db(resposta_id):
     _executar_pg("DELETE FROM respostas_gestao WHERE id = %s", (resposta_id,))
 
 
-def _avaliacoes_para_linhas():
+def _avaliacoes_para_linhas(data_filtro=None):
+    """Converte avaliações do banco pro formato de linhas usado nas telas.
+
+    data_filtro: texto digitado no campo "Data" da aba Avaliações.
+    - Vazio/None -> só a semana atual (comportamento padrão, rápido).
+    - Data completa "DD/MM/AAAA" -> busca só aquele dia, direto no banco
+      (rápido, funciona pra qualquer data do histórico, não só a semana).
+    - Texto parcial (ex.: só "2026" ou "08/2026") -> busca em TODAS as
+      avaliações e filtra por substring, como já era feito antes — mais
+      lento, mas só roda quando o admin pede uma busca assim de propósito.
+    """
+    data_filtro = (data_filtro or "").strip()
+    if not data_filtro:
+        registros = _ler_avaliacoes_semana_db()
+    else:
+        registros = _ler_avaliacoes_dia_db(data_filtro)
+        if registros is None:  # não era uma data completa válida
+            registros = _ler_avaliacoes_todas_db()
+            registros = [r for r in registros if data_filtro in str(r["Data"])]
     return [
         [r["Data"], r["Aluno"], r["Serie"], r["Curso"], r["Estagio"], r["Item"], r["Nota"]]
-        for r in _ler_avaliacoes_semana_db()
+        for r in registros
     ]
 
 
@@ -1416,6 +1611,16 @@ def get_avaliacoes_publicas():
 def post_avaliacao():
     dados = request.get_json()
     if not dados: return jsonify({"erro": "JSON invalido"}), 400
+
+    # Antes só o app do aluno escondia o botão de avaliar quando esse
+    # toggle estava desligado (checagem só do lado do cliente) — se o app
+    # não tivesse buscado a config mais recente por qualquer motivo (cache,
+    # rede), a avaliação passava mesmo assim. Agora o servidor também
+    # recusa de verdade.
+    cfg_sys = ler_json(CONFIG_FILE, {"avaliacoes_ativas": True, "modo_leitura": "camera"})
+    if not cfg_sys.get("avaliacoes_ativas", True):
+        return jsonify({"erro": "Avaliações desativadas no momento"}), 403
+
     nome, serie, curso = dados.get("nome","Anonimo"), dados.get("serie","N/A"), dados.get("curso","N/A")
     respostas = dados.get("respostas", {})
 
@@ -2495,6 +2700,7 @@ def abrir_painel_admin_ctk(event=None):
                             "ROXO_CLARO": ROXO_CLARO,
                         },
                         _agora_br, _ler_avaliacoes_semana_db,
+                        _ler_avaliacoes_periodo_db,
                     )
                 elif nome == "Relatório do Ensino":
                     paginas[nome] = _criar_pagina_relatorio_ensino_extraida(
@@ -2519,10 +2725,7 @@ def abrir_painel_admin_ctk(event=None):
                             "AZUL_CLARO": AZUL_CLARO, "ROXO_CLARO": ROXO_CLARO,
                         },
                         _agora_br,
-                        lambda: {
-                            "db_status": "Online" if PG_POOL else "Offline",
-                            "api_status": "Online",
-                        },
+                        _diagnosticar_sistema,
                         _ler_backups_db,
                     )
                 elif nome == "Editar Cardápio":
@@ -3004,10 +3207,11 @@ if __name__ == "__main__":
     if _cloud_api_url():
         threading.Thread(target=_sincronizar_tudo_nuvem, daemon=True).start()
 
-    threading.Thread(
+    _FLASK_THREAD = threading.Thread(
         target=lambda: app.run(host="0.0.0.0", port=5000, use_reloader=False, debug=False, threaded=True),
         daemon=True
-    ).start()
+    )
+    _FLASK_THREAD.start()
     time.sleep(1)
 
     validacao = validar_inicializacao()

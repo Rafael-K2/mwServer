@@ -1,0 +1,34 @@
+26/08/2026 20:35:24 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+26/08/2026 20:35:24 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+26/08/2026 20:35:24 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+26/08/2026 20:35:26 - INFO - Pool PostgreSQL inicializado
+26/08/2026 20:35:27 - INFO - Tabelas Neon verificadas/criadas
+26/08/2026 20:35:28 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:35:28 - WARNING - Sync nuvem falhou (/admin/eventos): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:35:28 - INFO - Validação de inicialização OK
+26/08/2026 20:35:28 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+26/08/2026 20:35:29 - WARNING - Sync nuvem falhou (/admin/config): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:35:30 - WARNING - Sync nuvem falhou (/admin/lista-alunos): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:35:30 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+26/08/2026 20:35:36 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+26/08/2026 20:54:38 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+26/08/2026 20:54:38 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+26/08/2026 20:54:38 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+26/08/2026 20:54:39 - INFO - Pool PostgreSQL inicializado
+26/08/2026 20:54:40 - INFO - Tabelas Neon verificadas/criadas
+26/08/2026 20:54:41 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:54:41 - WARNING - Sync nuvem falhou (/admin/eventos): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:54:41 - INFO - Validação de inicialização OK
+26/08/2026 20:54:42 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+26/08/2026 20:54:42 - WARNING - Sync nuvem falhou (/admin/config): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:54:42 - WARNING - Sync nuvem falhou (/admin/lista-alunos): HTTP 403 — {"erro":"Acesso negado"}
+
+26/08/2026 20:54:42 - WARNING - Falha ao sincronizar lista_alunos com a nuvem
+26/08/2026 20:54:50 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

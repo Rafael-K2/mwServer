@@ -143,7 +143,9 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
     _estado = {"linhas_filtradas": [], "exibindo": 0}
 
     def _eh_almoco_favorito(item):
-        return "almoco favorito" in item.lower() or "almoço favorito" in item.lower()
+        item_lower = item.lower()
+        return ("almoco favorito" in item_lower or "almoço favorito" in item_lower
+                or item_lower == "melhoralmoco")
 
     def _renderizar_linhas(linhas_vis, total_filtrado):
         """Desenha apenas as linhas recebidas no corpo da tabela."""
@@ -232,7 +234,7 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
 
         def _buscar():
             try:
-                return _avaliacoes_para_linhas(), None
+                return _avaliacoes_para_linhas(data_f), None
             except Exception as e:
                 return None, e
 
@@ -273,9 +275,11 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
                     command=carregar_dados).pack(side="left", padx=(20, 4), pady=(18, 0))
 
     def exportar_pdf():
+        data_f = ent_data.get().strip()
+
         def _gerar():
             try:
-                reader = [["Data", "Aluno", "Serie", "Curso", "Estagio", "Item", "Nota"]] + _avaliacoes_para_linhas()
+                reader = [["Data", "Aluno", "Serie", "Curso", "Estagio", "Item", "Nota"]] + _avaliacoes_para_linhas(data_f)
             except Exception as e:
                 corpo.after(0, lambda: messagebox.showerror("Erro", f"Falha ao ler avaliações do banco:\n{e}"))
                 return
@@ -323,14 +327,29 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
     var_ativas = ctk.BooleanVar(value=cfg_sys.get("avaliacoes_ativas", True))
     var_modo = ctk.StringVar(value=cfg_sys.get("modo_leitura", "camera"))
 
+    lbl_sync_status = ctk.CTkLabel(filtros_card, text="", font=("Segoe UI", 10, "bold"),
+                                     text_color="#C62828", wraplength=700, justify="left")
+
     def salvar_config():
         cfg_sys["avaliacoes_ativas"] = var_ativas.get()
         cfg_sys["modo_leitura"] = var_modo.get()
         salvar_json(CONFIG_FILE, cfg_sys)
+        # Antes essa falha era engolida em silêncio (except: pass) — o
+        # admin achava que tinha salvado, mas se a sincronização com a
+        # nuvem falhasse (ex.: senha de admin diferente entre o painel e a
+        # API), os alunos continuavam vendo o estado antigo. Agora mostra
+        # um aviso claro na tela quando isso acontece.
         try:
-            _sync_nuvem("/admin/config", "PUT", cfg_sys)
+            ok = _sync_nuvem("/admin/config", "PUT", cfg_sys)
         except Exception:
-            pass
+            ok = False
+        if ok:
+            lbl_sync_status.configure(text="")
+        else:
+            lbl_sync_status.configure(
+                text="⚠ Salvo aqui, mas falhou ao enviar pra nuvem — os alunos ainda "
+                     "podem não ver essa mudança. Confira a senha de admin da API."
+            )
 
     ctk.CTkCheckBox(linha2, text="Avaliações Ativas", variable=var_ativas,
                       fg_color=VERDE_VIBRANTE, hover_color=VERDE_ESCURO,
@@ -342,6 +361,8 @@ def criar_pagina_avaliacoes(_scroll_inner, cores, ler_json, salvar_json,
                           fg_color=VERDE_VIBRANTE, command=salvar_config).pack(side="left", padx=6)
     ctk.CTkRadioButton(linha2, text="Leitor USB", variable=var_modo, value="usb",
                           fg_color=VERDE_VIBRANTE, command=salvar_config).pack(side="left", padx=6)
+
+    lbl_sync_status.pack(anchor="w", padx=18, pady=(0, 12))
 
     def apagar_tudo():
         if confirmar_exclusao(

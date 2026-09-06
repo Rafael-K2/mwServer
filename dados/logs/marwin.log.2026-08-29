@@ -1,0 +1,11 @@
+29/08/2026 11:19:47 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+29/08/2026 11:19:47 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+29/08/2026 11:19:47 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+29/08/2026 11:19:49 - INFO - Pool PostgreSQL inicializado
+29/08/2026 11:19:50 - INFO - Tabelas Neon verificadas/criadas
+29/08/2026 11:19:51 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+29/08/2026 11:19:51 - INFO - Validação de inicialização OK
+29/08/2026 11:19:51 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+29/08/2026 11:19:54 - INFO - Lista de alunos sincronizada: 504 alunos
+29/08/2026 11:19:56 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

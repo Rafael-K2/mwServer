@@ -22,6 +22,7 @@ Setores e itens batem com o que o index.html envia em AVAL_ITENS:
                          almoço favorito).
 """
 import threading
+import datetime
 import textwrap
 import unicodedata
 from collections import Counter
@@ -35,7 +36,8 @@ from paineis.helpers import iniciar_polling
 from paineis.helpers import classificar_nota
 
 
-def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliacoes_db):
+def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliacoes_semana_db,
+                                     _ler_avaliacoes_periodo_db=None):
     """Cria e retorna o frame da página "Relatório Semanal" (avaliações).
 
     Parâmetros
@@ -47,9 +49,15 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
         VERDE_VIBRANTE, VERDE_ESCURO, AZUL_CLARO, VERDE_CLARO, ROXO_CLARO.
     _agora_br : callable
         Devolve datetime atual no fuso do Brasil.
-    _ler_avaliacoes_db : callable
-        Lê todos os registros de avaliações do banco (lista de dicts com
-        Data, Aluno, Serie, Curso, Estagio, Item, Nota).
+    _ler_avaliacoes_semana_db : callable
+        Lê as avaliações da semana ATUAL (lista de dicts com Data, Aluno,
+        Serie, Curso, Estagio, Item, Nota). Usada quando a navegação de
+        semana está na semana atual (padrão ao abrir a aba).
+    _ler_avaliacoes_periodo_db : callable opcional
+        Lê avaliações de um período (data_inicio, data_fim) — usada pelos
+        botões de navegação pra ver semanas anteriores/seguintes. Sem essa
+        função, os botões de navegação ficam desabilitados e a página só
+        mostra a semana atual, como antes.
     """
     CINZA_BG       = cores["CINZA_BG"]
     BRANCO         = cores["BRANCO"]
@@ -120,14 +128,8 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
         submissoes_anonimas = set()
 
         for r in registros:
-            try:
-                estagio = int(str(r.get("Estagio", "")).strip())
-            except (TypeError, ValueError):
-                continue
-            if estagio not in por_setor_item:
-                continue
-
             item = str(r.get("Item", "")).strip()
+            estagio_bruto = str(r.get("Estagio", "")).strip()
             nome_aluno = str(r.get("Aluno", "")).strip()
             if not nome_aluno or _norm(nome_aluno) == "anonimo":
                 submissoes_anonimas.add(str(r.get("Data", "")))
@@ -135,12 +137,26 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
                 alunos.add(nome_aluno.lower())
 
             # "Qual foi o melhor almoço da semana?" é um VOTO em dia da
-            # semana (vem de um <select>), não uma nota de 1-5 estrelas —
-            # tratado à parte e fora das médias/contagens de estrela.
-            if estagio == 4 and "melhor almoco da semana" in _norm(item):
+            # semana (vem de um <select>), não uma nota de 1-5 estrelas.
+            # O app do aluno manda isso com Estagio="comida" e
+            # Item="melhorAlmoco" (não um número de estágio comum) — por
+            # isso essa checagem precisa vir ANTES da conversão pra int
+            # logo abaixo, senão int("comida") falha e a linha é
+            # descartada em silêncio, perdendo o voto. O segundo `or`
+            # mantém compatibilidade com um formato mais antigo (estágio
+            # 4 + texto por extenso), caso exista no histórico.
+            if (_norm(estagio_bruto) == "comida" and _norm(item) == "melhoralmoco") or \
+               (estagio_bruto == "4" and "melhor almoco da semana" in _norm(item)):
                 dia = str(r.get("Nota", "")).strip()
                 if dia and _norm(dia) != "nenhum":
                     votos_almoco[dia] += 1
+                continue
+
+            try:
+                estagio = int(estagio_bruto)
+            except (TypeError, ValueError):
+                continue
+            if estagio not in por_setor_item:
                 continue
 
             nota = _nota_numerica(r.get("Nota"))
@@ -221,6 +237,40 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
     lbl_filtro_info = ctk.CTkLabel(filtro_bar, text="", font=("Segoe UI", 10),
                                     text_color=TEXTO_CINZA)
     lbl_filtro_info.pack(side="left")
+
+    # ── Navegação entre semanas ─────────────────────────────────────
+    # offset 0 = semana atual, -1 = semana passada, -2 = duas semanas
+    # atrás etc. Não deixa avançar além da semana atual (offset > 0),
+    # pra não mostrar semanas que ainda nem aconteceram.
+    _semana_offset = {"valor": 0}
+    nav_bar = ctk.CTkFrame(cab, fg_color="transparent")
+    nav_bar.pack(fill="x", pady=(10, 0))
+
+    def _intervalo_semana(offset):
+        hoje = _agora_br().date()
+        inicio_atual = hoje - datetime.timedelta(days=hoje.weekday())
+        inicio = inicio_atual + datetime.timedelta(weeks=offset)
+        fim = inicio + datetime.timedelta(days=6)
+        return inicio, fim
+
+    btn_semana_ant = ctk.CTkButton(nav_bar, text="◀ Semana anterior", width=150, height=30,
+                                    fg_color="#374151", hover_color="#1F2937",
+                                    font=("Segoe UI", 11))
+    btn_semana_ant.pack(side="left", padx=(0, 8))
+
+    lbl_semana_atual = ctk.CTkLabel(nav_bar, text="", font=("Segoe UI", 11, "bold"),
+                                     text_color=TEXTO_ESCURO)
+    lbl_semana_atual.pack(side="left", padx=8)
+
+    btn_semana_prox = ctk.CTkButton(nav_bar, text="Próxima semana ▶", width=150, height=30,
+                                     fg_color="#374151", hover_color="#1F2937",
+                                     font=("Segoe UI", 11))
+    btn_semana_prox.pack(side="left", padx=8)
+
+    btn_semana_hoje = ctk.CTkButton(nav_bar, text="Semana atual", width=120, height=30,
+                                     fg_color=VERDE_VIBRANTE, hover_color=VERDE_ESCURO,
+                                     font=("Segoe UI", 11, "bold"))
+    btn_semana_hoje.pack(side="left", padx=8)
 
     # ── Cards de resumo (4 no topo, igual ao mockup) ───────────────
     cards_row = ctk.CTkFrame(page, fg_color="transparent")
@@ -679,8 +729,13 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
 
     # ── Função de carga de dados ──────────────────────────────────
     def _carregar():
+        offset = _semana_offset["valor"]
         try:
-            registros = _ler_avaliacoes_db()
+            if offset == 0 or not _ler_avaliacoes_periodo_db:
+                registros = _ler_avaliacoes_semana_db()
+            else:
+                inicio, fim = _intervalo_semana(offset)
+                registros = _ler_avaliacoes_periodo_db(inicio, fim)
         except Exception:
             registros = []
 
@@ -730,8 +785,35 @@ def criar_pagina_relatorio_semanal(_scroll_inner, cores, _agora_br, _ler_avaliac
 
             cache["stats"] = stats
             _renderizar_tudo(stats)
+            _atualizar_label_semana()
 
         page.after(0, _atualizar_ui)
+
+    def _atualizar_label_semana():
+        offset = _semana_offset["valor"]
+        inicio, fim = _intervalo_semana(offset)
+        sufixo = " (atual)" if offset == 0 else ""
+        lbl_semana_atual.configure(
+            text=f"Semana de {inicio.strftime('%d/%m')} a {fim.strftime('%d/%m/%Y')}{sufixo}")
+        btn_semana_prox.configure(state=("disabled" if offset >= 0 else "normal"))
+        btn_semana_hoje.configure(state=("disabled" if offset == 0 else "normal"))
+
+    def _navegar_semana(delta):
+        _semana_offset["valor"] = min(0, _semana_offset["valor"] + delta)
+        _atualizar_label_semana()
+        threading.Thread(target=_carregar, daemon=True).start()
+
+    def _ir_semana_atual():
+        if _semana_offset["valor"] == 0:
+            return
+        _semana_offset["valor"] = 0
+        _atualizar_label_semana()
+        threading.Thread(target=_carregar, daemon=True).start()
+
+    btn_semana_ant.configure(command=lambda: _navegar_semana(-1))
+    btn_semana_prox.configure(command=lambda: _navegar_semana(1))
+    btn_semana_hoje.configure(command=_ir_semana_atual)
+    _atualizar_label_semana()  # mostra "Semana de ... (atual)" já na primeira renderização
 
     def _limpar_ao_destruir(event=None):
         _ativo["vivo"] = False  # sinaliza threads para pararem

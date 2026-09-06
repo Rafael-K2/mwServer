@@ -127,7 +127,8 @@ def criar_pagina_visao_geral(_scroll_inner, cores, jd, logger,
         avaliacoes_semana = 0
         for av in avaliacoes_todas:
             try:
-                d = datetime.datetime.strptime(av["Data"], "%d/%m/%Y").date()
+                data_str = str(av.get("Data", "")).split(" ")[0]  # tira a hora, se tiver
+                d = datetime.datetime.strptime(data_str, "%d/%m/%Y").date()
                 if inicio_semana <= d <= fim_semana:
                     avaliacoes_semana += 1
             except Exception:

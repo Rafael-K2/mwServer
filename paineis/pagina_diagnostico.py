@@ -50,7 +50,7 @@ def criar_pagina_diagnostico(_scroll_inner, cores, _agora_br, _status_sistema, _
 
     def _renderizar(status, total_backups, backups_recentes, erro=None):
         lbl_db.configure(text=status.get("db_status", "Indefinido"))
-        lbl_api.configure(text=status.get("api_status", "Online"))
+        lbl_api.configure(text=status.get("api_status", "Indefinido"))
         lbl_backups.configure(text=str(total_backups))
 
         for w in lista.winfo_children():
@@ -61,9 +61,23 @@ def criar_pagina_diagnostico(_scroll_inner, cores, _agora_br, _status_sistema, _
                          font=("Segoe UI", 11), text_color="#C62828",
                          wraplength=650, justify="left").pack(anchor="w", pady=8)
 
+        # Explicação detalhada e em português simples de por que o banco não
+        # está OK — pensada pra quem estiver na frente da tela conseguir
+        # entender e mandar print, mesmo sem saber nada técnico.
+        db_status = status.get("db_status", "Indefinido")
+        db_detalhe = status.get("db_detalhe", "")
+        if db_status != "Online" and db_detalhe:
+            aviso = ctk.CTkFrame(lista, fg_color="#FEF3F2", corner_radius=10,
+                                  border_width=1, border_color="#FCA5A5")
+            aviso.pack(fill="x", pady=(0, 10))
+            ctk.CTkLabel(aviso, text=f"🔴 Banco: {db_status}", font=("Segoe UI", 12, "bold"),
+                         text_color="#C62828").pack(anchor="w", padx=14, pady=(12, 4))
+            ctk.CTkLabel(aviso, text=db_detalhe, font=("Segoe UI", 11), text_color="#7F1D1D",
+                         wraplength=650, justify="left").pack(anchor="w", padx=14, pady=(0, 12))
+
         infos = [
-            ("Servidor", status.get("api_status", "Online")),
-            ("Banco", status.get("db_status", "Indefinido")),
+            ("Servidor", status.get("api_status", "Indefinido")),
+            ("Banco", db_status),
             ("Última checagem", _agora_br().strftime("%d/%m/%Y %H:%M:%S")),
         ]
         for titulo, valor in infos:

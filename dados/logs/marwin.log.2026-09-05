@@ -1,0 +1,177 @@
+05/09/2026 10:47:59 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+05/09/2026 10:47:59 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+05/09/2026 10:47:59 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+05/09/2026 10:48:01 - INFO - Pool PostgreSQL inicializado
+05/09/2026 10:48:02 - INFO - Tabelas Neon verificadas/criadas
+05/09/2026 10:48:03 - INFO - Validação de inicialização OK
+05/09/2026 10:48:03 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+05/09/2026 10:48:04 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+05/09/2026 10:48:06 - INFO - Lista de alunos sincronizada: 504 alunos
+05/09/2026 10:48:19 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+05/09/2026 10:56:07 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+05/09/2026 10:56:07 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+05/09/2026 10:56:07 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+05/09/2026 10:56:08 - INFO - Pool PostgreSQL inicializado
+05/09/2026 10:56:09 - INFO - Tabelas Neon verificadas/criadas
+05/09/2026 10:56:10 - INFO - Validação de inicialização OK
+05/09/2026 10:56:10 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+05/09/2026 10:56:13 - INFO - Lista de alunos sincronizada: 504 alunos
+05/09/2026 10:56:13 - INFO - Configurações sincronizadas com a API na nuvem
+05/09/2026 10:56:44 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+05/09/2026 11:55:31 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+05/09/2026 11:55:31 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+05/09/2026 11:55:31 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+05/09/2026 11:55:33 - INFO - Pool PostgreSQL inicializado
+05/09/2026 11:55:34 - INFO - Tabelas Neon verificadas/criadas
+05/09/2026 11:55:35 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+05/09/2026 11:55:35 - INFO - Validação de inicialização OK
+05/09/2026 11:55:35 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+05/09/2026 11:55:38 - INFO - Lista de alunos sincronizada: 504 alunos
+05/09/2026 11:55:39 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+05/09/2026 12:06:07 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:06:07 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:43 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:43 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:43 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:43 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:43 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:52 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:52 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:10:52 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:28 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:37 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:37 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:11:37 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:12:21 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:12:51 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:14 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:22 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:22 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 12:13:22 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:48:59 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+05/09/2026 21:48:59 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+05/09/2026 21:48:59 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+05/09/2026 21:49:01 - INFO - Pool PostgreSQL inicializado
+05/09/2026 21:49:02 - INFO - Tabelas Neon verificadas/criadas
+05/09/2026 21:49:03 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+05/09/2026 21:49:03 - INFO - Validação de inicialização OK
+05/09/2026 21:49:03 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+05/09/2026 21:49:05 - INFO - Lista de alunos sincronizada: 504 alunos
+05/09/2026 21:49:09 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:01 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:03 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:09 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:09 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:09 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:10 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:10 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:10 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:10 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:50:10 - WARNING - Falha ao obter conexão PostgreSQL
+05/09/2026 21:59:22 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+05/09/2026 21:59:22 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+05/09/2026 21:59:22 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+05/09/2026 21:59:23 - INFO - Pool PostgreSQL inicializado
+05/09/2026 21:59:24 - INFO - Tabelas Neon verificadas/criadas
+05/09/2026 21:59:25 - INFO - Validação de inicialização OK
+05/09/2026 21:59:25 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+05/09/2026 21:59:28 - INFO - Lista de alunos sincronizada: 504 alunos
+05/09/2026 21:59:28 - INFO - Configurações sincronizadas com a API na nuvem
+05/09/2026 21:59:32 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+05/09/2026 22:06:47 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260525_065752_avaliacoes_escola.csv inseridos=360 ignorados=0 erros=0
+05/09/2026 22:07:15 - INFO - Importação forçada — tabela=refeitorio arquivo=20260525_065752_refeitorio.csv inseridos=22 ignorados=54 erros=0
+05/09/2026 22:08:54 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260525_145044_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:09:34 - INFO - Importação forçada — tabela=refeitorio arquivo=20260525_145044_refeitorio.csv inseridos=31 ignorados=76 erros=0
+05/09/2026 22:11:11 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260525_145231_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:11:42 - INFO - Importação forçada — tabela=refeitorio arquivo=20260525_145231_refeitorio.csv inseridos=0 ignorados=107 erros=0
+05/09/2026 22:13:23 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_065248_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:13:51 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_065248_refeitorio.csv inseridos=0 ignorados=107 erros=0
+05/09/2026 22:15:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_065346_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:15:58 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_065346_refeitorio.csv inseridos=0 ignorados=107 erros=0
+05/09/2026 22:17:50 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_065519_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:18:20 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_065519_refeitorio.csv inseridos=0 ignorados=107 erros=0
+05/09/2026 22:20:02 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_065653_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:20:32 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_065653_refeitorio.csv inseridos=0 ignorados=107 erros=0
+05/09/2026 22:22:14 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_115237_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:23:04 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_115237_refeitorio.csv inseridos=43 ignorados=107 erros=0
+05/09/2026 22:24:40 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_115653_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:25:21 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_115653_refeitorio.csv inseridos=0 ignorados=150 erros=0
+05/09/2026 22:27:00 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260526_120621_avaliacoes_escola.csv inseridos=0 ignorados=360 erros=0
+05/09/2026 22:27:40 - INFO - Importação forçada — tabela=refeitorio arquivo=20260526_120621_refeitorio.csv inseridos=0 ignorados=150 erros=0
+05/09/2026 22:29:31 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_065424_avaliacoes_escola.csv inseridos=20 ignorados=360 erros=0
+05/09/2026 22:30:15 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_065424_refeitorio.csv inseridos=0 ignorados=150 erros=0
+05/09/2026 22:32:07 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_114820_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:33:12 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_114820_refeitorio.csv inseridos=43 ignorados=150 erros=0
+05/09/2026 22:34:57 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_120419_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:35:47 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_120419_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:37:29 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_120557_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:38:22 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_120557_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:40:08 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_120908_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:41:00 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_120908_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:42:44 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_120935_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:43:35 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_120935_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:45:21 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_121154_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:46:16 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_121154_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:47:55 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260527_125246_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:48:46 - INFO - Importação forçada — tabela=refeitorio arquivo=20260527_125246_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:51:58 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_065323_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 22:54:48 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_065323_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 22:59:46 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_065338_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:01:56 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_065338_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:07:13 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_065359_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:09:27 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_065359_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:13:12 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_065712_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:15:08 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_065712_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:18:57 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_065857_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:20:39 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_065857_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:24:22 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_070003_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:26:17 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_070003_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:29:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_070020_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:31:39 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_070020_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:35:17 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_070130_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:37:09 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_070130_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:40:50 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_070403_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:42:51 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_070403_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:46:23 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_070437_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:47:59 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_070437_refeitorio.csv inseridos=0 ignorados=193 erros=0
+05/09/2026 23:51:13 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_071039_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:53:08 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_071039_refeitorio.csv inseridos=4 ignorados=193 erros=0
+05/09/2026 23:56:51 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_122948_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
+05/09/2026 23:58:40 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_122948_refeitorio.csv inseridos=0 ignorados=197 erros=0
