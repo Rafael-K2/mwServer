@@ -1,0 +1,51 @@
+03/10/2026 13:17:20 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+03/10/2026 13:17:20 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+03/10/2026 13:17:20 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+03/10/2026 13:17:21 - INFO - Pool PostgreSQL inicializado
+03/10/2026 13:17:23 - INFO - Tabelas Neon verificadas/criadas
+03/10/2026 13:17:24 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+
+03/10/2026 13:17:24 - INFO - Validação de inicialização OK
+03/10/2026 13:17:24 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+03/10/2026 13:17:26 - INFO - Lista de alunos sincronizada: 504 alunos
+03/10/2026 13:17:46 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+03/10/2026 13:26:24 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+03/10/2026 13:26:24 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+03/10/2026 13:26:24 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+03/10/2026 13:26:25 - INFO - Pool PostgreSQL inicializado
+03/10/2026 13:26:27 - INFO - Tabelas Neon verificadas/criadas
+03/10/2026 13:26:28 - INFO - Validação de inicialização OK
+03/10/2026 13:26:28 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+03/10/2026 13:26:31 - INFO - Lista de alunos sincronizada: 504 alunos
+03/10/2026 13:26:31 - INFO - Configurações sincronizadas com a API na nuvem
+03/10/2026 13:26:48 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+03/10/2026 13:33:12 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+03/10/2026 13:33:12 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+03/10/2026 13:33:12 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+03/10/2026 13:33:13 - INFO - Pool PostgreSQL inicializado
+03/10/2026 13:33:15 - INFO - Tabelas Neon verificadas/criadas
+03/10/2026 13:33:16 - INFO - Validação de inicialização OK
+03/10/2026 13:33:16 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+03/10/2026 13:33:17 - INFO - Lista de alunos sincronizada: 504 alunos
+03/10/2026 13:33:17 - INFO - Configurações sincronizadas com a API na nuvem
+03/10/2026 13:34:07 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+03/10/2026 13:47:23 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+03/10/2026 13:47:23 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+03/10/2026 13:47:23 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+03/10/2026 13:47:23 - INFO - Pool PostgreSQL inicializado
+03/10/2026 13:47:25 - INFO - Tabelas Neon verificadas/criadas
+03/10/2026 13:47:26 - INFO - Validação de inicialização OK
+03/10/2026 13:47:26 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+03/10/2026 13:47:28 - INFO - Lista de alunos sincronizada: 504 alunos
+03/10/2026 13:47:28 - INFO - Configurações sincronizadas com a API na nuvem
+03/10/2026 16:30:04 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+03/10/2026 16:30:04 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+03/10/2026 16:30:04 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+03/10/2026 16:30:05 - INFO - Pool PostgreSQL inicializado
+03/10/2026 16:30:06 - INFO - Tabelas Neon verificadas/criadas
+03/10/2026 16:30:07 - INFO - Validação de inicialização OK
+03/10/2026 16:30:07 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+03/10/2026 16:30:09 - INFO - Lista de alunos sincronizada: 504 alunos
+03/10/2026 16:30:09 - INFO - Configurações sincronizadas com a API na nuvem
+03/10/2026 16:30:37 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+03/10/2026 16:33:02 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM

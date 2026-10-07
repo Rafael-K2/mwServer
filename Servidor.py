@@ -855,6 +855,34 @@ def _inserir_frequencia_db(registro):
     )
 
 
+def _registrar_resposta_almoco_db(matricula, nome, serie, curso, vai):
+    """Grava na tabela `refeitorio` a resposta "vai almoçar hoje?" do totem.
+    Sim -> 'almoco' | Não -> 'sem_almoco' (não sobrescreve um 'almoco' existente).
+    Mesma convenção da aba Refeitório/Histórico. Retorna (hora, refeicao)."""
+    data = _hoje()
+    hora = _agora_br().strftime("%H:%M:%S")
+    existentes = _executar_pg(
+        "SELECT refeicao FROM refeitorio WHERE data = %s AND matricula = %s AND refeicao IN ('almoco', 'sem_almoco')",
+        (data, matricula), fetch=True
+    ) or []
+    tem_almoco = any(r["refeicao"] == "almoco" for r in existentes)
+    tem_sem = any(r["refeicao"] == "sem_almoco" for r in existentes)
+
+    if vai:
+        if tem_sem:
+            _executar_pg(
+                "DELETE FROM refeitorio WHERE data = %s AND matricula = %s AND refeicao = 'sem_almoco'",
+                (data, matricula)
+            )
+        if not tem_almoco:
+            _inserir_refeitorio_db([data, hora, matricula, nome, serie, curso, "almoco"])
+        return hora, "almoco"
+
+    if not tem_almoco and not tem_sem:
+        _inserir_refeitorio_db([data, hora, matricula, nome, serie, curso, "sem_almoco"])
+    return hora, ("almoco" if tem_almoco else "sem_almoco")
+
+
 def _apagar_frequencia_data_db(data_alvo):
     _executar_pg("DELETE FROM frequencia WHERE data = %s", (data_alvo,))
 
@@ -2075,6 +2103,55 @@ def registrar_frequencia():
                                    "aula": aula, "hora": hora,
                                    "total_hoje": total_hoje})
     return jsonify({"status": "ok", "nome": nome, "hora": hora, "aula": aula, "total_hoje": total_hoje}), 200
+
+@app.route("/almoco/registrar", methods=["POST"])
+def registrar_almoco():
+    """Resposta do totem à pergunta "vai almoçar hoje?" -> alimenta a aba Refeitório."""
+    dados = request.get_json()
+    if not dados:
+        return jsonify({"erro": "JSON invalido"}), 400
+
+    def _limpar(valor):
+        v = str(valor or "")
+        if "^" in v or "Ç" in v:
+            v = v.replace("^Ç", ":").replace("^", "").replace("Ç", "")
+        return re.sub(r"[^a-zA-Z0-9À-ÿ\s.'-]", "", v).strip()
+
+    matricula = _limpar(dados.get("matricula"))
+    if not matricula:
+        return jsonify({"erro": "Matricula nao informada"}), 400
+
+    bruto = str(dados.get("vai_almocar", "")).strip().lower()
+    if bruto in ("sim", "true", "1"):
+        vai = True
+    elif bruto in ("nao", "não", "false", "0"):
+        vai = False
+    else:
+        return jsonify({"erro": "vai_almocar deve ser sim ou nao"}), 400
+
+    nome = _limpar(dados.get("nome")) or "Desconhecido"
+    serie = _limpar(dados.get("serie")) or "N/A"
+    curso = _limpar(dados.get("curso")) or "N/A"
+    cadastrado = _buscar_aluno_por_matricula(matricula)
+    if cadastrado:
+        nome = cadastrado.get("nome") or nome
+        serie = cadastrado.get("serie") or serie
+        curso = cadastrado.get("curso") or curso
+
+    try:
+        hora, gravado = _registrar_resposta_almoco_db(matricula, nome, serie, curso, vai)
+    except RuntimeError as e:
+        logger.error(f"PostgreSQL indisponível: {e}")
+        return jsonify({"erro": "Banco de dados indisponível"}), 503
+    except Exception as e:
+        logger.error(f"Erro ao registrar resposta de almoço: {e}")
+        return jsonify({"erro": "Erro ao registrar almoço"}), 500
+
+    logger.info(f"Resposta de almoço: {nome} ({matricula}) -> {gravado}")
+    _sse_notificar("refeitorio", {"nome": nome, "matricula": matricula,
+                                   "refeicao": gravado, "hora": hora,
+                                   "total_hoje": len(_ler_refeitorio_hoje_db())})
+    return jsonify({"status": "ok", "refeicao": gravado, "hora": hora}), 200
 
 @app.route("/frequencia/hoje", methods=["GET"])
 def get_frequencia_hoje():

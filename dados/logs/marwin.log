@@ -1,91 +1,11 @@
-06/09/2026 00:02:05 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_123720_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
-06/09/2026 00:03:53 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_123720_refeitorio.csv inseridos=0 ignorados=197 erros=0
-06/09/2026 00:07:19 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_124731_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
-06/09/2026 00:09:07 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_124731_refeitorio.csv inseridos=1 ignorados=197 erros=0
-06/09/2026 00:12:04 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_125217_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
-06/09/2026 00:13:53 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_125217_refeitorio.csv inseridos=3 ignorados=198 erros=0
-06/09/2026 00:17:05 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260528_125417_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
-06/09/2026 00:18:45 - INFO - Importação forçada — tabela=refeitorio arquivo=20260528_125417_refeitorio.csv inseridos=0 ignorados=201 erros=0
-06/09/2026 00:21:58 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_065516_avaliacoes_escola.csv inseridos=0 ignorados=380 erros=0
-06/09/2026 00:23:38 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_065516_refeitorio.csv inseridos=0 ignorados=201 erros=0
-06/09/2026 00:26:00 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_085251_refeitorio.csv inseridos=40 ignorados=201 erros=0
-06/09/2026 00:40:36 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_145411_avaliacoes_escola.csv inseridos=820 ignorados=0 erros=0
-06/09/2026 00:42:53 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_145411_refeitorio.csv inseridos=2 ignorados=241 erros=0
-06/09/2026 00:51:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_155333_avaliacoes_escola.csv inseridos=120 ignorados=820 erros=0
-06/09/2026 00:53:36 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_155333_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:02:57 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_182631_avaliacoes_escola.csv inseridos=20 ignorados=940 erros=0
-06/09/2026 01:04:58 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_182631_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:13:51 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_183755_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:15:55 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_183755_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:23:22 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_183818_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:25:18 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_183818_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:33:10 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_185125_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:34:12 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_185125_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:38:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_185202_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:39:36 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_185202_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:44:01 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_185314_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:45:03 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_185314_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:49:15 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_185334_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:50:18 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_185334_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 01:54:33 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260529_190643_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 01:55:39 - INFO - Importação forçada — tabela=refeitorio arquivo=20260529_190643_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:00:00 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260530_073954_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:01:08 - INFO - Importação forçada — tabela=refeitorio arquivo=20260530_073954_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:05:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260530_194045_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:06:36 - INFO - Importação forçada — tabela=refeitorio arquivo=20260530_194045_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:10:55 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260531_203850_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:12:00 - INFO - Importação forçada — tabela=refeitorio arquivo=20260531_203850_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:16:14 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260531_234651_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:17:14 - INFO - Importação forçada — tabela=refeitorio arquivo=20260531_234651_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:21:38 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260531_234954_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:22:42 - INFO - Importação forçada — tabela=refeitorio arquivo=20260531_234954_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:26:57 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_172705_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:28:04 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_172705_refeitorio.csv inseridos=0 ignorados=243 erros=0
-06/09/2026 02:32:28 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_173922_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:33:37 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_173922_refeitorio.csv inseridos=1 ignorados=243 erros=0
-06/09/2026 02:37:48 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_174326_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:38:54 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_174326_refeitorio.csv inseridos=0 ignorados=244 erros=0
-06/09/2026 02:43:08 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_180822_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:44:16 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_180822_refeitorio.csv inseridos=0 ignorados=244 erros=0
-06/09/2026 02:48:30 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_182801_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:49:37 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_182801_refeitorio.csv inseridos=0 ignorados=244 erros=0
-06/09/2026 02:54:13 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_183413_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 02:55:22 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_183413_refeitorio.csv inseridos=2 ignorados=244 erros=0
-06/09/2026 02:59:43 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_184152_avaliacoes_escola.csv inseridos=0 ignorados=960 erros=0
-06/09/2026 03:00:52 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_184152_refeitorio.csv inseridos=0 ignorados=246 erros=0
-06/09/2026 03:01:35 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260602_185945_avaliacoes_escola.csv inseridos=80 ignorados=0 erros=0
-06/09/2026 03:02:45 - INFO - Importação forçada — tabela=refeitorio arquivo=20260602_185945_refeitorio.csv inseridos=2 ignorados=243 erros=0
-06/09/2026 03:02:45 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_055937_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:03:26 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_061320_avaliacoes_escola.csv inseridos=80 ignorados=0 erros=0
-06/09/2026 03:03:26 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_061320_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:03:47 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_210837_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:03:47 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_210837_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:04:10 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_213720_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:04:10 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_213720_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:04:33 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_213915_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:04:33 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_213915_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:04:57 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_214300_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:04:57 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_214300_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:05:19 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260603_214355_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:05:19 - INFO - Importação forçada — tabela=refeitorio arquivo=20260603_214355_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:05:42 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260604_100737_avaliacoes_escola.csv inseridos=0 ignorados=80 erros=0
-06/09/2026 03:05:42 - INFO - Importação forçada — tabela=refeitorio arquivo=20260604_100737_refeitorio.csv inseridos=0 ignorados=1 erros=0
-06/09/2026 03:06:12 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260604_112530_avaliacoes_escola.csv inseridos=20 ignorados=80 erros=0
-06/09/2026 03:06:13 - INFO - Importação forçada — tabela=refeitorio arquivo=20260604_112530_refeitorio.csv inseridos=0 ignorados=4 erros=0
-06/09/2026 03:06:39 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260604_112650_avaliacoes_escola.csv inseridos=0 ignorados=100 erros=0
-06/09/2026 03:06:41 - INFO - Importação forçada — tabela=refeitorio arquivo=20260604_112650_refeitorio.csv inseridos=0 ignorados=4 erros=0
-06/09/2026 03:07:09 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260604_113443_avaliacoes_escola.csv inseridos=0 ignorados=100 erros=0
-06/09/2026 03:07:10 - INFO - Importação forçada — tabela=refeitorio arquivo=20260604_113443_refeitorio.csv inseridos=0 ignorados=4 erros=0
-06/09/2026 03:07:38 - INFO - Importação forçada — tabela=avaliacoes arquivo=20260604_113545_avaliacoes_escola.csv inseridos=0 ignorados=100 erros=0
-06/09/2026 03:07:39 - INFO - Importação forçada — tabela=refeitorio arquivo=20260604_113545_refeitorio.csv inseridos=0 ignorados=4 erros=0
-06/09/2026 13:44:52 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
-06/09/2026 13:44:52 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
-06/09/2026 13:44:52 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
-06/09/2026 13:44:53 - INFO - Pool PostgreSQL inicializado
-06/09/2026 13:44:55 - INFO - Tabelas Neon verificadas/criadas
-06/09/2026 13:44:56 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
+06/10/2026 13:55:36 - WARNING - MARWIN_ADMIN_PASS não definida — usando a senha padrão do perfil ADM. Defina a variável de ambiente para usar uma senha própria.
+06/10/2026 13:55:36 - WARNING - MARWIN_COOR_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_COOR_PASS para usar uma senha própria.
+06/10/2026 13:55:36 - WARNING - MARWIN_SERC_PASS não definida — usando a senha padrão desse perfil. Defina MARWIN_SERC_PASS para usar uma senha própria.
+06/10/2026 13:55:37 - INFO - Pool PostgreSQL inicializado
+06/10/2026 13:55:39 - INFO - Tabelas Neon verificadas/criadas
+06/10/2026 13:55:40 - INFO - Validação de inicialização OK
+06/10/2026 13:55:40 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
+06/10/2026 13:55:40 - WARNING - Sync nuvem falhou (/admin/cardapio): HTTP 500 — {"erro":"SSL connection has been closed unexpectedly\n"}
 
-06/09/2026 13:44:56 - INFO - Validação de inicialização OK
-06/09/2026 13:44:56 - INFO - Servidor MARWIN iniciado em http://26.86.100.119:5000
-06/09/2026 13:44:59 - INFO - Lista de alunos sincronizada: 504 alunos
-06/09/2026 13:45:01 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
+06/10/2026 13:55:43 - INFO - Lista de alunos sincronizada: 504 alunos
+06/10/2026 13:55:59 - INFO - Painel admin (CTk) aberto com sucesso — perfil: ADM
